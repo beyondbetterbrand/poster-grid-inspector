@@ -1,0 +1,6 @@
+{
+  "name": "Poster Grid Inspector",
+  "description": "AI-powered poster grid analysis tool. Upload poster images to auto-detect grid layouts (Swiss modular, multi-column, baseline, diagonal), fine-tune overlays, and export clean SVG guide files.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
