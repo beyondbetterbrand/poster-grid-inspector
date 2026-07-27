@@ -199,13 +199,76 @@ export default function App() {
           analysisData: newAnalysis,
         });
       } else {
-        setAnalysisError(json.error || 'AI 비전 분석 응답에 실패했습니다.');
-        await applyFallbackGrid(src);
+        const errMsg = json.error || '';
+        const isQuotaOrLimit =
+          response.status === 429 ||
+          json.isRateLimit ||
+          errMsg.includes('429') ||
+          errMsg.includes('quota') ||
+          errMsg.includes('한도') ||
+          errMsg.includes('초과') ||
+          errMsg.includes('RESOURCE_EXHAUSTED');
+
+        if (isQuotaOrLimit) {
+          setAnalysisError(
+            json.error ||
+              'Gemini API 요청 한도(Quota Exceeded)에 도달하였습니다. 그리드를 표시하지 않으며, 잠시 후 다시 시도하시거나 [분석 히스토리]에서 이전 기록을 불러와주세요.'
+          );
+          setAnalysis(null);
+          setDetectedElements([]);
+          setKeylines([]);
+          setIsAiAnalyzed(false);
+          setGridParams((prev) => ({
+            ...prev,
+            showColumns: false,
+            showRows: false,
+            showMargins: false,
+            showBaseline: false,
+            showKeylines: false,
+            showBoundingBoxes: false,
+            showDiagonal: false,
+            showGoldenRatio: false,
+            showRuleOfThirds: false,
+          }));
+        } else {
+          setAnalysisError(json.error || 'AI 비전 분석 응답에 실패했습니다.');
+          await applyFallbackGrid(src);
+        }
       }
     } catch (err: any) {
       console.warn('API error during AI Vision analysis:', err);
-      setAnalysisError(err?.message || '네트워크 연결 오류');
-      await applyFallbackGrid(src);
+      const errStr = err?.message || '';
+      const isQuotaOrLimit =
+        errStr.includes('429') ||
+        errStr.includes('quota') ||
+        errStr.includes('한도') ||
+        errStr.includes('초과') ||
+        errStr.includes('RESOURCE_EXHAUSTED');
+
+      if (isQuotaOrLimit) {
+        setAnalysisError(
+          'Gemini API 요청 한도(Quota Exceeded)에 도달하였습니다. 그리드를 표시하지 않으며, 잠시 후 다시 시도하시거나 [분석 히스토리]에서 이전 기록을 불러와주세요.'
+        );
+        setAnalysis(null);
+        setDetectedElements([]);
+        setKeylines([]);
+        setIsAiAnalyzed(false);
+        setGridParams((prev) => ({
+          ...prev,
+          showColumns: false,
+          showRows: false,
+          showMargins: false,
+          showBaseline: false,
+          showKeylines: false,
+          showBoundingBoxes: false,
+          showDiagonal: false,
+          showGoldenRatio: false,
+          showRuleOfThirds: false,
+        }));
+      } else {
+        setAnalysisError(err?.message || '네트워크 연결 오류');
+        await applyFallbackGrid(src);
+      }
     } finally {
       setIsAnalyzing(false);
     }
