@@ -20,7 +20,6 @@ import {
   RefreshCw,
   Timer,
   HelpCircle,
-  Activity,
 } from 'lucide-react';
 
 interface RightInspectorPanelProps {
@@ -37,7 +36,6 @@ interface RightInspectorPanelProps {
   onResetGridParams?: () => void;
   onOpenManualModal?: () => void;
   onOpenHistoryModal?: () => void;
-  onOpenApiStatusModal?: () => void;
 }
 
 const COLOR_PRESETS = [
@@ -142,7 +140,6 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
   onResetGridParams,
   onOpenManualModal,
   onOpenHistoryModal,
-  onOpenApiStatusModal,
 }) => {
   const [activeTab, setActiveTab] = useState<'candidates' | 'elements' | 'options' | 'report'>('candidates');
 
@@ -163,7 +160,6 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
         <QuotaErrorView
           analysisError={analysisError}
           onOpenHistoryModal={onOpenHistoryModal}
-          onOpenApiStatusModal={onOpenApiStatusModal}
           onReanalyzeAi={onReanalyzeAi}
         />
       );
@@ -801,9 +797,8 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
 const QuotaErrorView: React.FC<{
   analysisError: string;
   onOpenHistoryModal?: () => void;
-  onOpenApiStatusModal?: () => void;
   onReanalyzeAi?: () => void;
-}> = ({ analysisError, onOpenHistoryModal, onOpenApiStatusModal, onReanalyzeAi }) => {
+}> = ({ analysisError, onOpenHistoryModal, onReanalyzeAi }) => {
   const [secondsLeft, setSecondsLeft] = useState(60);
 
   useEffect(() => {
@@ -919,16 +914,6 @@ const QuotaErrorView: React.FC<{
 
       {/* Action buttons */}
       <div className="space-y-2 pt-4 border-t border-[#232733] mt-4">
-        {onOpenApiStatusModal && (
-          <button
-            onClick={onOpenApiStatusModal}
-            className="w-full bg-[#1C202B] hover:bg-[#282E3E] text-[#F59E0B] border border-[#F59E0B]/40 font-mono font-bold px-4 py-2.5 text-xs uppercase transition-all shadow flex items-center justify-center gap-2 active:scale-95"
-          >
-            <Activity className="w-4 h-4 text-[#F59E0B]" />
-            <span>실시간 API 상태 진단 및 테스트</span>
-          </button>
-        )}
-
         <button
           onClick={handleRetry}
           disabled={secondsLeft > 0}

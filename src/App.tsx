@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangle, Zap, RefreshCw, Clock, Activity } from 'lucide-react';
+import { AlertTriangle, Zap, RefreshCw, Clock } from 'lucide-react';
 import { Header } from './components/Header';
 import { ImageUploader } from './components/ImageUploader';
 import { GridCanvasOverlay } from './components/GridCanvasOverlay';
@@ -9,7 +9,6 @@ import { HelpModal } from './components/HelpModal';
 import { BrockmannGuideModal } from './components/BrockmannGuideModal';
 import { SystemManualModal } from './components/SystemManualModal';
 import { HistoryModal } from './components/HistoryModal';
-import { ApiStatusModal } from './components/ApiStatusModal';
 import { saveLocalHistoryRecord } from './utils/historyManager';
 import { prepareImageForVisionApi, analyzePosterImageLocally, formatTypeHierarchyRating } from './utils/imageUtils';
 import { generateCandidateGrids, optimizeGridToElements } from './utils/gridOptimizer';
@@ -60,7 +59,6 @@ export default function App() {
   const [isBrockmannModalOpen, setIsBrockmannModalOpen] = useState<boolean>(false);
   const [isManualModalOpen, setIsManualModalOpen] = useState<boolean>(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState<boolean>(false);
-  const [isApiStatusModalOpen, setIsApiStatusModalOpen] = useState<boolean>(false);
 
   const [isAiAnalyzed, setIsAiAnalyzed] = useState<boolean>(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
@@ -425,7 +423,6 @@ export default function App() {
         onOpenExportModal={() => setIsExportModalOpen(true)}
         onOpenManualModal={() => setIsManualModalOpen(true)}
         onOpenHistoryModal={() => setIsHistoryModalOpen(true)}
-        onOpenApiStatusModal={() => setIsApiStatusModalOpen(true)}
         onReanalyzeAi={() => runAiVisionAnalysis()}
         onUploadClick={handleUploadNewImageTrigger}
         hasImage={!!imageSrc}
@@ -460,13 +457,6 @@ export default function App() {
             </div>
 
             <div className="flex items-center gap-2 shrink-0 w-full md:w-auto">
-              <button
-                onClick={() => setIsApiStatusModalOpen(true)}
-                className="flex-1 md:flex-none bg-[#1C202B] hover:bg-[#282E3E] text-[#F59E0B] border border-[#F59E0B]/40 font-bold px-3.5 py-2 text-xs uppercase transition-all flex items-center justify-center gap-1.5 active:scale-95"
-              >
-                <Activity className="w-3.5 h-3.5 text-[#F59E0B]" />
-                <span>API 상태 점검</span>
-              </button>
               <button
                 onClick={() => setIsHistoryModalOpen(true)}
                 className="flex-1 md:flex-none bg-[#1C202B] hover:bg-[#282E3E] text-[#C2C8D6] border border-[#3A3F52] font-bold px-3.5 py-2 text-xs uppercase transition-all flex items-center justify-center gap-1.5 active:scale-95"
@@ -524,7 +514,6 @@ export default function App() {
                 onResetGridParams={handleResetGridParams}
                 onOpenManualModal={() => setIsManualModalOpen(true)}
                 onOpenHistoryModal={() => setIsHistoryModalOpen(true)}
-                onOpenApiStatusModal={() => setIsApiStatusModalOpen(true)}
               />
             </div>
           </div>
@@ -561,13 +550,6 @@ export default function App() {
         isOpen={isHistoryModalOpen}
         onClose={() => setIsHistoryModalOpen(false)}
         onSelectHistoryItem={handleSelectHistoryItem}
-      />
-
-      {/* Gemini API Health & Status Diagnostic Modal */}
-      <ApiStatusModal
-        isOpen={isApiStatusModalOpen}
-        onClose={() => setIsApiStatusModalOpen(false)}
-        onReanalyzeAi={() => runAiVisionAnalysis()}
       />
 
       {/* Footer */}

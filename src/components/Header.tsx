@@ -1,11 +1,10 @@
 import React from 'react';
-import { Grid, FileDown, Sparkles, RefreshCw, Upload, BookOpen, History, Activity } from 'lucide-react';
+import { Grid, FileDown, Sparkles, RefreshCw, Upload, BookOpen, History } from 'lucide-react';
 
 interface HeaderProps {
   onOpenExportModal: () => void;
   onOpenManualModal?: () => void;
   onOpenHistoryModal?: () => void;
-  onOpenApiStatusModal?: () => void;
   onReanalyzeAi?: () => void;
   onUploadClick?: () => void;
   hasImage: boolean;
@@ -16,7 +15,6 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenExportModal,
   onOpenManualModal,
   onOpenHistoryModal,
-  onOpenApiStatusModal,
   onReanalyzeAi,
   onUploadClick,
   hasImage,
@@ -39,18 +37,6 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2 sm:gap-2.5">
-          {onOpenApiStatusModal && (
-            <button
-              onClick={onOpenApiStatusModal}
-              className="flex items-center gap-1.5 text-xs sm:text-sm font-mono font-bold px-3 py-2 bg-[#1A1D26] hover:bg-[#252A38] text-[#F59E0B] border border-[#F59E0B]/30 transition-all active:scale-95 shadow-sm"
-              title="Gemini API의 실시간 연결 상태 및 쿼터 한도를 점검합니다"
-            >
-              <Activity className="w-4 h-4 text-[#F59E0B]" />
-              <span className="hidden lg:inline">API 상태 점검</span>
-              <span className="lg:hidden">API 상태</span>
-            </button>
-          )}
-
           {onOpenHistoryModal && (
             <button
               onClick={onOpenHistoryModal}
