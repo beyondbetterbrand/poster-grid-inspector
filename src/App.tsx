@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { AlertTriangle, Zap, RefreshCw } from 'lucide-react';
 import { Header } from './components/Header';
 import { ImageUploader } from './components/ImageUploader';
 import { GridCanvasOverlay } from './components/GridCanvasOverlay';
@@ -429,6 +430,47 @@ export default function App() {
 
       {/* Main Body Layout */}
       <main className="flex-1 max-w-[1400px] w-full mx-auto p-4 sm:p-6 space-y-6">
+        {/* Prominent Quota Alert Banner */}
+        {analysisError && (
+          <div className="p-4 bg-[#181014] border border-[#FF3B30]/50 rounded-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs font-mono shadow-xl animate-fade-in">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#FF3B30]/20 border border-[#FF3B30]/40 flex items-center justify-center text-[#FF3B30] shrink-0 mt-0.5">
+                <AlertTriangle className="w-4 h-4 animate-pulse" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-[#FF3B30] uppercase tracking-wider text-xs">
+                    ⚠️ API 요청 한도 초과 (RESOURCE_EXHAUSTED / 429)
+                  </span>
+                  <span className="text-[10px] bg-[#FF3B30]/20 text-[#FF3B30] border border-[#FF3B30]/30 px-1.5 py-0.5 rounded font-bold">
+                    약 1분 후 자동 리셋
+                  </span>
+                </div>
+                <p className="text-[#C2C8D6] leading-relaxed">
+                  Gemini API 사용량 한도(RPM)에 도달하였습니다. <strong>60초 후 자동으로 리셋</strong>되며, 오른쪽 패널에서 실시간 타이머와 재시도 버튼을 확인하실 수 있습니다.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0 w-full md:w-auto">
+              <button
+                onClick={() => setIsHistoryModalOpen(true)}
+                className="flex-1 md:flex-none bg-[#10B981] hover:bg-[#0D9668] text-white font-bold px-3.5 py-2 text-xs uppercase transition-all flex items-center justify-center gap-1.5 shadow active:scale-95"
+              >
+                <Zap className="w-3.5 h-3.5" />
+                <span>히스토리 열기 (비용 $0)</span>
+              </button>
+              <button
+                onClick={() => runAiVisionAnalysis()}
+                className="flex-1 md:flex-none bg-[#232733] hover:bg-[#2E3444] text-[#C2C8D6] border border-[#3A3F52] font-bold px-3.5 py-2 text-xs uppercase transition-all flex items-center justify-center gap-1.5 active:scale-95"
+              >
+                <RefreshCw className="w-3.5 h-3.5 text-[#FF3B30]" />
+                <span>AI 스캔 재시도</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Upload Zone Drop Area (shown when no image is loaded) */}
         {!imageSrc && (
           <ImageUploader

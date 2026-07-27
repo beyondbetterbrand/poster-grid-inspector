@@ -14,6 +14,11 @@ import {
   Clock,
   Loader2,
   RotateCcw,
+  AlertCircle,
+  Zap,
+  RefreshCw,
+  Timer,
+  HelpCircle,
 } from 'lucide-react';
 
 interface RightInspectorPanelProps {
@@ -147,6 +152,10 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
   }
 
   if (!analysis) {
+    if (analysisError) {
+      return <QuotaErrorView analysisError={analysisError} onOpenHistoryModal={onOpenHistoryModal} onReanalyzeAi={onReanalyzeAi} />;
+    }
+
     return (
       <div className="bg-[#0F1015] border border-[#232733] p-6 text-center text-[#5C6479] flex flex-col items-center justify-center gap-2 min-h-[560px] lg:min-h-[calc(100vh-160px)] lg:max-h-[calc(100vh-160px)] h-full">
         <Layers className="w-8 h-8 text-[#3A3F52] mb-1" />
@@ -770,6 +779,148 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
               </div>
             )}
           </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const QuotaErrorView: React.FC<{
+  analysisError: string;
+  onOpenHistoryModal?: () => void;
+  onReanalyzeAi?: () => void;
+}> = ({ analysisError, onOpenHistoryModal, onReanalyzeAi }) => {
+  const [secondsLeft, setSecondsLeft] = useState(60);
+
+  useEffect(() => {
+    if (secondsLeft <= 0) return;
+    const timer = setInterval(() => {
+      setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [secondsLeft]);
+
+  const handleRetry = () => {
+    if (onReanalyzeAi) {
+      setSecondsLeft(60);
+      onReanalyzeAi();
+    }
+  };
+
+  return (
+    <div className="bg-[#0F1015] border border-[#FF3B30]/40 p-6 text-[#C2C8D6] flex flex-col justify-between min-h-[560px] lg:min-h-[calc(100vh-160px)] lg:max-h-[calc(100vh-160px)] h-full rounded-lg shadow-2xl font-mono overflow-y-auto">
+      <div className="space-y-5">
+        {/* Header Badge */}
+        <div className="flex items-center gap-3 pb-3 border-b border-[#FF3B30]/30">
+          <div className="w-10 h-10 rounded-full bg-[#FF3B30]/20 border border-[#FF3B30]/50 flex items-center justify-center text-[#FF3B30] shrink-0">
+            <AlertCircle className="w-5 h-5" />
+          </div>
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#FF3B30] bg-[#FF3B30]/10 border border-[#FF3B30]/30 px-2 py-0.5 rounded">
+              GEMINI_API_QUOTA_EXCEEDED (429)
+            </span>
+            <h3 className="text-sm font-extrabold text-white mt-1">
+              AI 비전 분석 요청 한도 초과 안내
+            </h3>
+          </div>
+        </div>
+
+        {/* Live Timer Card */}
+        <div className="p-4 bg-[#181014] border border-[#FF3B30]/30 rounded-lg space-y-3">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-[#FF3B30] flex items-center gap-1.5">
+              <Timer className="w-4 h-4 animate-pulse" />
+              <span>한도 리셋 자동 타이머</span>
+            </span>
+            <span className="text-white font-bold text-sm bg-[#FF3B30]/20 px-2.5 py-0.5 rounded border border-[#FF3B30]/40">
+              {secondsLeft > 0 ? `${secondsLeft}초 남음` : '✅ 리셋 완료'}
+            </span>
+          </div>
+
+          {/* Progress bar */}
+          <div className="w-full bg-[#2A1820] h-2 rounded-full overflow-hidden border border-[#FF3B30]/20">
+            <div
+              className="bg-gradient-to-r from-[#FF3B30] to-[#F59E0B] h-full transition-all duration-1000 ease-linear"
+              style={{ width: `${((60 - secondsLeft) / 60) * 100}%` }}
+            />
+          </div>
+
+          <p className="text-[11px] text-[#A0A7BA] leading-relaxed">
+            {secondsLeft > 0 ? (
+              <span>
+                Gemini API의 분당 요청 한도(RPM)에 도달하였습니다. 카운트다운 완료 후 아래 <strong className="text-white">[AI 비전 재분석]</strong> 버튼을 누르시면 다시 정상적으로 스캔됩니다.
+              </span>
+            ) : (
+              <span className="text-[#10B981] font-bold">
+                1분이 경과하여 한도가 초기화되었습니다! 아래 [AI 비전 재시도] 버튼을 눌러 포스터 스캔을 다시 시작해보세요.
+              </span>
+            )}
+          </p>
+        </div>
+
+        {/* Reset Time Q&A Explanation */}
+        <div className="p-4 bg-[#141721] border border-[#232733] rounded-lg space-y-3 text-xs">
+          <div className="flex items-center gap-1.5 text-white font-bold">
+            <HelpCircle className="w-4 h-4 text-[#38BDF8]" />
+            <span>언제 다시 사용할 수 있나요?</span>
+          </div>
+
+          <div className="space-y-2 text-[11px] text-[#A0A7BA] leading-relaxed">
+            <div className="p-2.5 bg-[#0D0F16] rounded border border-[#232733] space-y-1">
+              <span className="text-[#38BDF8] font-bold block">1. 분당 요청 제한 (RPM: Requests Per Minute)</span>
+              <p>
+                단시간 내에 연속으로 스캔하거나 여러 사용자가 동시에 사용할 때 발생하며, <strong>약 1분(60초) 후</strong> 자동으로 리셋되어 즉시 다시 사용하실 수 있습니다.
+              </p>
+            </div>
+
+            <div className="p-2.5 bg-[#0D0F16] rounded border border-[#232733] space-y-1">
+              <span className="text-[#F59E0B] font-bold block">2. 일일 전체 한도 제한 (RPD: Requests Per Day)</span>
+              <p>
+                하루 전체 사용량이 소진된 경우 <strong>매일 한국시간 기준 오후 4시 (PST 기준 자정)</strong>에 일일 한도가 완전 초기화됩니다.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Alternative Tip: History Reuse */}
+        <div className="p-3.5 bg-[#101F1A] border border-[#10B981]/30 rounded-lg text-xs space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="font-bold text-[#10B981] flex items-center gap-1">
+              <Zap className="w-4 h-4" />
+              <span>대안: API 토큰 소모 $0 이전 히스토리</span>
+            </span>
+          </div>
+          <p className="text-[11px] text-[#A0A7BA] leading-relaxed">
+            이전에 이미 한 번 분석했던 포스터는 API 요청을 보내지 않고 브라우저/서버에 저장된 분석 데이터로 즉시 열람하실 수 있습니다.
+          </p>
+        </div>
+      </div>
+
+      {/* Action buttons */}
+      <div className="space-y-2 pt-4 border-t border-[#232733] mt-4">
+        <button
+          onClick={handleRetry}
+          disabled={secondsLeft > 0}
+          className={`w-full font-mono font-bold px-4 py-2.5 text-xs uppercase transition-all shadow flex items-center justify-center gap-2 ${
+            secondsLeft > 0
+              ? 'bg-[#232733] text-[#8C93A6] border border-[#3A3F52] cursor-not-allowed'
+              : 'bg-[#FF3B30] hover:bg-[#E02E24] text-white active:scale-95 shadow-lg shadow-[#FF3B30]/20'
+          }`}
+        >
+          <RefreshCw className={`w-4 h-4 ${secondsLeft === 0 ? 'animate-spin-slow text-white' : ''}`} />
+          <span>
+            {secondsLeft > 0 ? `AI 비전 재분석 (${secondsLeft}초 대기중)` : 'AI 비전 분석 재시도 (지금 가능)'}
+          </span>
+        </button>
+
+        {onOpenHistoryModal && (
+          <button
+            onClick={onOpenHistoryModal}
+            className="w-full bg-[#10B981] hover:bg-[#0D9668] text-white font-mono font-bold px-4 py-2.5 text-xs uppercase transition-all shadow flex items-center justify-center gap-2 active:scale-95"
+          >
+            <Zap className="w-4 h-4" />
+            <span>히스토리 목록에서 불러오기</span>
+          </button>
         )}
       </div>
     </div>
