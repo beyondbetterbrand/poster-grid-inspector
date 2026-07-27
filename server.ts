@@ -27,16 +27,18 @@ async function startServer() {
 
   app.use(express.json({ limit: "25mb" }));
 
-  // Initialize Gemini AI Client
-  const getAi = () => {
-    return new GoogleGenAI({
-      apiKey: process.env.GEMINI_API_KEY,
-      httpOptions: {
-        headers: {
-          "User-Agent": "aistudio-build",
-        },
-      },
-    });
+  // Helper to retrieve all configured Gemini API keys for automatic key rotation
+  const getApiKeys = () => {
+    const keys: string[] = [];
+    if (process.env.GEMINI_API_KEYS) {
+      keys.push(...process.env.GEMINI_API_KEYS.split(',').map((k) => k.trim()));
+    }
+    if (process.env.GEMINI_API_KEY) keys.push(process.env.GEMINI_API_KEY.trim());
+    if (process.env.GEMINI_API_KEY_2) keys.push(process.env.GEMINI_API_KEY_2.trim());
+    if (process.env.GEMINI_API_KEY_3) keys.push(process.env.GEMINI_API_KEY_3.trim());
+
+    const uniqueKeys = Array.from(new Set(keys.filter(Boolean)));
+    return uniqueKeys.length > 0 ? uniqueKeys : [process.env.GEMINI_API_KEY];
   };
 
   // API Route for Poster Grid Analysis
@@ -120,6 +122,7 @@ CRITICAL INSTRUCTIONS:
 Respond ONLY with valid JSON conforming to the schema.`;
 
       const executeGenerateContent = async () => {
+        const apiKeys = getApiKeys();
         const modelsToTry = [
           "gemini-2.5-flash",
           "gemini-flash-latest",
@@ -128,14 +131,25 @@ Respond ONLY with valid JSON conforming to the schema.`;
         ];
         let lastErr: any = null;
 
-        for (const modelName of modelsToTry) {
-          for (let attempt = 0; attempt < 2; attempt++) {
-            try {
-              if (attempt > 0) {
-                await new Promise((resolve) => setTimeout(resolve, 1000));
-              }
-              const resp = await ai.models.generateContent({
-                model: modelName,
+        for (const currentKey of apiKeys) {
+          if (!currentKey) continue;
+          const aiInstance = new GoogleGenAI({
+            apiKey: currentKey,
+            httpOptions: {
+              headers: {
+                "User-Agent": "aistudio-build",
+              },
+            },
+          });
+
+          for (const modelName of modelsToTry) {
+            for (let attempt = 0; attempt < 2; attempt++) {
+              try {
+                if (attempt > 0) {
+                  await new Promise((resolve) => setTimeout(resolve, 1000));
+                }
+                const resp = await aiInstance.models.generateContent({
+                  model: modelName,
                 contents: [
                   {
                     inlineData: {
@@ -240,11 +254,12 @@ Respond ONLY with valid JSON conforming to the schema.`;
               const msg = err?.message || "";
               // If 429 / Quota error on this model, break inner loop to immediately try the next model
               if (msg.includes("429") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("quota")) {
-                console.warn(`[Gemini Fallback] Model ${modelName} hit quota limit (429). Falling back to next model...`);
+                console.warn(`[Gemini Fallback] Model ${modelName} hit quota limit (429). Falling back to next model/key...`);
                 break;
               }
             }
           }
+        }
         }
         throw lastErr;
       };
