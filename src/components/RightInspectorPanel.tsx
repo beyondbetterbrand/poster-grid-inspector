@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AnalysisResult, GridParams } from '../types';
 import { optimizeGridToElements } from '../utils/gridOptimizer';
 import {
@@ -11,6 +11,8 @@ import {
   Sliders,
   FileText,
   Compass,
+  Clock,
+  Loader2,
 } from 'lucide-react';
 
 interface RightInspectorPanelProps {
@@ -33,6 +35,86 @@ const COLOR_PRESETS = [
   { name: '모노 화이트', hex: '#FFFFFF' },
 ];
 
+const AnalysisLoadingView: React.FC = () => {
+  const [progress, setProgress] = useState(5);
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 92) return 92;
+        const diff = Math.max(1, Math.floor((95 - prev) / 8));
+        return prev + diff;
+      });
+      setElapsed((prev) => Math.round((prev + 0.5) * 10) / 10);
+    }, 500);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const getStepText = (prog: number) => {
+    if (prog < 35) return '1단계: AI 비전 OCR & 포스터 레이아웃 요소 인지 중...';
+    if (prog < 70) return '2단계: 스위스 모듈 컬럼 & 여백 베이스라인 계산 중...';
+    return '3단계: 그리드 후보군 매칭 및 타이포그래피 리포트 생성 중...';
+  };
+
+  return (
+    <div className="bg-[#0F1015] border border-[#232733] p-6 sm:p-8 text-center text-[#8C93A6] flex flex-col items-center justify-center gap-6 min-h-[560px] lg:min-h-[calc(100vh-160px)] lg:max-h-[calc(100vh-160px)] h-full sticky top-4">
+      {/* Animated Spinner Icon */}
+      <div className="relative flex items-center justify-center">
+        <div className="w-16 h-16 rounded-full border-2 border-[#232733] border-t-[#FF3B30] animate-spin" />
+        <Sparkles className="w-7 h-7 text-[#FF3B30] absolute" />
+      </div>
+
+      <div className="space-y-3 w-full max-w-sm">
+        <div className="flex items-center justify-between text-xs font-mono">
+          <span className="text-[#FF3B30] font-bold tracking-wider flex items-center gap-1.5">
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            SWISS_VISION_AI_SCANNING
+          </span>
+          <span className="text-white font-bold font-mono text-sm">{progress}%</span>
+        </div>
+
+        {/* Visual Progress Bar */}
+        <div className="w-full bg-[#181A22] h-3 border border-[#2B3040] overflow-hidden relative shadow-inner">
+          <div
+            className="bg-gradient-to-r from-[#FF3B30] via-[#FF6B00] to-[#FF3B30] h-full transition-all duration-300 ease-out relative"
+            style={{ width: `${progress}%` }}
+          >
+            <div className="absolute right-0 top-0 bottom-0 w-2 bg-white animate-pulse shadow-[0_0_8px_#FFFFFF]" />
+          </div>
+        </div>
+
+        {/* Step Indicator */}
+        <div className="bg-[#161821] border border-[#232733] p-2.5 text-[11px] text-[#C2C8D6] font-mono text-left flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-[#FF3B30] animate-ping shrink-0" />
+          <p className="leading-tight">{getStepText(progress)}</p>
+        </div>
+      </div>
+
+      {/* Time Notice Card */}
+      <div className="bg-[#141620] border border-[#2B3040] p-4 text-left space-y-2 w-full max-w-sm">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs font-bold text-white font-mono">
+            <Clock className="w-4 h-4 text-[#FF3B30] shrink-0" />
+            <span>분석 소요 시간 안내</span>
+          </div>
+          <span className="text-[10px] font-mono text-[#FF3B30] bg-[#FF3B30]/10 px-2 py-0.5 border border-[#FF3B30]/30 font-bold">
+            약 5초 ~ 10초
+          </span>
+        </div>
+        <p className="text-[11px] text-[#A2A9B8] font-sans leading-relaxed">
+          실제 포스터 텍스트 배치, 이미지 영역 및 여백 수치를 정밀 분석 중입니다.
+          (진행 시간: <span className="text-white font-bold font-mono">{elapsed}초</span>)
+        </p>
+        <div className="pt-1 border-t border-[#232733] text-[10px] text-[#6C748A] font-sans">
+          💡 무료 API 환경에서 이용자가 몰릴 경우 약간의 대기 시간이 추가될 수 있습니다.
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
   analysis,
   hoveredElementId,
@@ -54,17 +136,7 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
   };
 
   if (isAnalyzing) {
-    return (
-      <div className="bg-[#0F1015] border border-[#232733] p-6 text-center text-[#8C93A6] animate-pulse flex flex-col items-center justify-center gap-3 min-h-[560px] lg:min-h-[calc(100vh-160px)] lg:max-h-[calc(100vh-160px)] h-full">
-        <Sparkles className="w-8 h-8 text-[#FF3B30] animate-spin" />
-        <p className="text-xs font-mono font-bold text-white uppercase tracking-wider">
-          SWISS_VISION_AI_OCR_SCANNING...
-        </p>
-        <p className="text-[11px] text-[#8C93A6] max-w-xs font-sans leading-relaxed">
-          실제 포스터 내부 타이틀 배치, 텍스트 외곽 박스 및 비주얼 이미지 영역을 정밀하게 추출하고 있습니다.
-        </p>
-      </div>
-    );
+    return <AnalysisLoadingView />;
   }
 
   if (!analysis) {

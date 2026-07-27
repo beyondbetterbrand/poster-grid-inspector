@@ -519,6 +519,27 @@ export const GridCanvasOverlay: React.FC<GridCanvasOverlayProps> = ({
                     );
                   })}
               </svg>
+
+              {/* AI Vision Analysis Scanning Overlay */}
+              {isAnalyzing && (
+                <div className="absolute inset-0 bg-[#0A0B0E]/65 backdrop-blur-[2px] z-30 flex flex-col items-center justify-center p-4 pointer-events-none">
+                  {/* Moving Scan Laser */}
+                  <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#FF3B30] to-transparent shadow-[0_0_20px_#FF3B30] animate-pulse top-1/2 -translate-y-1/2" />
+                  
+                  <div className="bg-[#0F1015]/95 border border-[#FF3B30] p-4 text-center max-w-sm shadow-2xl space-y-2 font-mono">
+                    <div className="flex items-center justify-center gap-2 text-white text-xs font-bold uppercase tracking-wider">
+                      <Sparkles className="w-4 h-4 text-[#FF3B30] animate-spin" />
+                      <span>SWISS_VISION_SCANNING...</span>
+                    </div>
+                    <p className="text-[11px] text-[#C2C8D6] font-sans leading-relaxed">
+                      AI가 이미지 내 스위스 그리드 컬럼과 텍스트 영역을 정밀 레이저 정렬 중입니다.
+                    </p>
+                    <div className="inline-block bg-[#FF3B30]/10 border border-[#FF3B30]/40 px-2.5 py-1 text-[10px] text-[#FF3B30] font-bold font-sans">
+                      ⏱️ 예상 소요 시간: 약 5초 ~ 10초
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

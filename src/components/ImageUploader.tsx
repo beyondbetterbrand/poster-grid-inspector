@@ -93,25 +93,45 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
             IMPORT_POSTER_FILE
           </span>
 
-          <h3 className="text-sm font-extrabold text-white mb-1 uppercase tracking-wide">
-            분석할 포스터 이미지 파일을 선택하세요
-          </h3>
-          <p className="text-[11px] text-[#8C93A6] mb-5 max-w-xs leading-relaxed font-sans">
-            드래그 앤 드롭하거나 클릭하여 파일을 로드합니다. (PNG, JPG, WEBP, SVG)
-          </p>
+          {isAnalyzing ? (
+            <div className="w-full max-w-sm space-y-3 font-mono text-left">
+              <div className="flex items-center justify-between text-xs font-mono">
+                <span className="text-[#FF3B30] font-bold tracking-wider flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-[#FF3B30] animate-spin" />
+                  POSTER_GRID_ANALYZING...
+                </span>
+                <span className="text-white font-bold">약 5초 ~ 10초 소요</span>
+              </div>
+              <div className="w-full bg-[#161821] h-2.5 border border-[#FF3B30]/50 overflow-hidden relative">
+                <div className="bg-gradient-to-r from-[#FF3B30] to-[#FF6B00] h-full w-full animate-[pulse_1s_infinite] relative" />
+              </div>
+              <p className="text-[11px] text-[#A2A9B8] font-sans text-center">
+                이미지 구조 및 스위스 타이포그래피 그리드를 정밀 분석 중입니다.
+              </p>
+            </div>
+          ) : (
+            <>
+              <h3 className="text-sm font-extrabold text-white mb-1 uppercase tracking-wide">
+                분석할 포스터 이미지 파일을 선택하세요
+              </h3>
+              <p className="text-[11px] text-[#8C93A6] mb-5 max-w-xs leading-relaxed font-sans">
+                드래그 앤 드롭하거나 클릭하여 파일을 로드합니다. (PNG, JPG, WEBP, SVG)
+              </p>
 
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-xs font-bold text-white bg-[#FF3B30] px-4 py-2 uppercase transition-all shadow group-hover:bg-[#E03126]">
-              파일 탐색기 열기
-            </span>
-          </div>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-xs font-bold text-white bg-[#FF3B30] px-4 py-2 uppercase transition-all shadow group-hover:bg-[#E03126]">
+                  파일 탐색기 열기
+                </span>
+              </div>
 
-          <div className="mt-2 text-[10px] text-[#A2A9B8] bg-[#161922] border border-[#2B3040] px-3 py-2 text-left flex items-start gap-2 max-w-sm font-sans">
-            <span className="text-[#FF3B30] font-bold font-mono shrink-0">[무료 API 안내]</span>
-            <p className="leading-normal">
-              무료 Gemini API(15 RPM)로 작동 중입니다. 사람이 갑자기 몰릴 경우 분석 초과 오류가 날 수 있으며, 약 15초 후 [다시 분석]을 누르면 정상 처리됩니다.
-            </p>
-          </div>
+              <div className="mt-2 text-[10px] text-[#A2A9B8] bg-[#161922] border border-[#2B3040] px-3 py-2 text-left flex items-start gap-2 max-w-sm font-sans">
+                <span className="text-[#FF3B30] font-bold font-mono shrink-0">[무료 API 안내]</span>
+                <p className="leading-normal">
+                  무료 Gemini API로 분석 중입니다. 정밀 분석에는 <strong className="text-white">약 5초~10초</strong>가 소요되며, 사용자가 몰릴 경우 약 15초 후 [다시 분석]을 실행해 주세요.
+                </p>
+              </div>
+            </>
+          )}
 
           {errorMessage && (
             <div className="mt-4 flex items-center gap-2 text-xs text-[#FF3B30] bg-[#FF3B30]/10 p-2 border border-[#FF3B30]/30 font-sans">
