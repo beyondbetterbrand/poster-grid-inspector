@@ -5,12 +5,14 @@ import {
   Eye,
   Layers,
   Sliders,
+  RotateCcw,
 } from 'lucide-react';
 
 interface GridControlsProps {
   gridParams: GridParams;
   onChangeParams: (newParams: GridParams) => void;
-  onApplySystemPreset: (systemType: GridSystemType) => void;
+  onApplySystemPreset?: (systemType: GridSystemType) => void;
+  onResetGridParams?: () => void;
 }
 
 const COLOR_PRESETS = [
@@ -24,6 +26,7 @@ const COLOR_PRESETS = [
 export const GridControls: React.FC<GridControlsProps> = ({
   gridParams,
   onChangeParams,
+  onResetGridParams,
 }) => {
   const updateParam = <K extends keyof GridParams>(key: K, value: GridParams[K]) => {
     onChangeParams({
@@ -40,9 +43,21 @@ export const GridControls: React.FC<GridControlsProps> = ({
           <Layers className="w-4 h-4 text-[#FF3B30]" />
           <h2 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wide">GRID_DISPLAY_CONTROLLER</h2>
         </div>
-        <span className="text-[9px] font-bold text-[#FF3B30] bg-[#FF3B30]/10 border border-[#FF3B30]/30 px-2 py-0.5 uppercase">
-          SWISS_STUDIO_MODULAR
-        </span>
+        <div className="flex items-center gap-2">
+          {onResetGridParams && (
+            <button
+              onClick={onResetGridParams}
+              className="flex items-center gap-1.5 text-xs font-mono font-bold px-2 py-0.5 bg-[#1C1F2B] hover:bg-[#FF3B30] text-[#C2C8D6] hover:text-white border border-[#2B3042] hover:border-[#FF3B30] transition-all"
+              title="AI가 분석한 초기 그리드로 리셋"
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>리셋</span>
+            </button>
+          )}
+          <span className="text-[9px] font-bold text-[#FF3B30] bg-[#FF3B30]/10 border border-[#FF3B30]/30 px-2 py-0.5 uppercase">
+            SWISS_STUDIO_MODULAR
+          </span>
+        </div>
       </div>
 
       {/* Layer Toggle Checkboxes */}

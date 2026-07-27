@@ -13,6 +13,7 @@ import {
   Compass,
   Clock,
   Loader2,
+  RotateCcw,
 } from 'lucide-react';
 
 interface RightInspectorPanelProps {
@@ -25,6 +26,7 @@ interface RightInspectorPanelProps {
   onReanalyzeAi?: () => void;
   gridParams: GridParams;
   onChangeParams: (newParams: GridParams) => void;
+  onResetGridParams?: () => void;
 }
 
 const COLOR_PRESETS = [
@@ -125,6 +127,7 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
   onReanalyzeAi,
   gridParams,
   onChangeParams,
+  onResetGridParams,
 }) => {
   const [activeTab, setActiveTab] = useState<'candidates' | 'elements' | 'options' | 'report'>('candidates');
 
@@ -152,74 +155,74 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
   }
 
   return (
-    <div className="bg-[#0F1015] border border-[#232733] text-white p-4 sm:p-5 shadow-2xl flex flex-col min-h-[560px] lg:min-h-[calc(100vh-160px)] lg:max-h-[calc(100vh-160px)] h-full sticky top-4">
+    <div className="bg-[#0F1015] border border-[#232733] text-white p-5 sm:p-6 shadow-2xl flex flex-col min-h-[560px] lg:min-h-[calc(100vh-160px)] lg:max-h-[calc(100vh-160px)] h-full sticky top-4">
       {/* Panel Top Title Header */}
-      <div className="pb-3 border-b border-[#232733] shrink-0 space-y-1.5">
+      <div className="pb-3.5 border-b border-[#232733] shrink-0 space-y-2">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-[10px] font-mono font-bold text-[#FF3B30] bg-[#FF3B30]/10 border border-[#FF3B30]/30 px-2 py-0.5 uppercase whitespace-nowrap shrink-0">
+            <span className="text-xs font-mono font-bold text-[#FF3B30] bg-[#FF3B30]/10 border border-[#FF3B30]/30 px-2.5 py-1 uppercase whitespace-nowrap shrink-0">
               {analysis.systemNameKo}
             </span>
-            <span className="text-[10px] font-mono text-[#8C93A6] whitespace-nowrap shrink-0">
-              CONF: {analysis.confidence}%
+            <span className="text-xs font-mono text-[#8C93A6] whitespace-nowrap shrink-0">
+              신뢰도 {analysis.confidence}%
             </span>
           </div>
 
           {analysis.typeHierarchyRating && (
             <div
-              className="flex items-center gap-1 bg-[#161821] px-2 py-0.5 border border-[#232733] shrink-0"
+              className="flex items-center gap-1.5 bg-[#161821] px-2.5 py-1 border border-[#232733] shrink-0"
               title={analysis.typeHierarchyRating}
             >
-              <Award className="w-3.5 h-3.5 text-[#F59E0B] shrink-0" />
-              <span className="text-[10px] font-mono font-bold text-[#F59E0B] truncate">
-                RATING: {analysis.typeHierarchyRating}
+              <Award className="w-4 h-4 text-[#F59E0B] shrink-0" />
+              <span className="text-xs font-mono font-bold text-[#F59E0B] truncate">
+                {analysis.typeHierarchyRating}
               </span>
             </div>
           )}
         </div>
 
-        <h2 className="text-xs sm:text-sm font-extrabold text-white truncate leading-snug font-mono uppercase tracking-wide" title={analysis.title}>
+        <h2 className="text-sm sm:text-base font-extrabold text-white truncate leading-snug font-mono uppercase tracking-wide" title={analysis.title}>
           {analysis.title}
         </h2>
       </div>
 
       {/* AI Vision Status Banner */}
       {onReanalyzeAi && (
-        <div className="mt-2 shrink-0">
+        <div className="mt-2.5 shrink-0">
           {!isAiAnalyzed || analysisError ? (
-            <div className="bg-[#2A1D15] border border-[#F59E0B]/40 p-2.5 flex items-center justify-between gap-2 text-xs">
-              <div className="min-w-0">
-                <span className="font-mono font-bold text-[#F59E0B] block text-[10px] uppercase">
+            <div className="bg-[#2A1D15] border border-[#F59E0B]/40 p-3 flex items-center justify-between gap-2 text-xs">
+              <div className="min-w-0 space-y-0.5">
+                <span className="font-mono font-bold text-[#F59E0B] block text-xs uppercase">
                   [CANVAS_SMART_VISION_ACTIVE]
                 </span>
-                <span className="text-[10px] text-[#D1D5DB] block truncate">
+                <span className="text-xs text-[#D1D5DB] block truncate">
                   {analysisError || '실물 포스터 이미지 기반 캔버스 스마트 비전 밀착 적용'}
                 </span>
               </div>
               <button
                 onClick={onReanalyzeAi}
-                className="shrink-0 bg-[#FF3B30] hover:bg-[#E03126] text-white font-mono font-bold px-2.5 py-1 text-[10px] uppercase transition-all active:scale-95 flex items-center gap-1 shadow"
+                className="shrink-0 bg-[#FF3B30] hover:bg-[#E03126] text-white font-mono font-bold px-3 py-1.5 text-xs uppercase transition-all active:scale-95 flex items-center gap-1 shadow"
               >
-                <Sparkles className="w-3 h-3" />
+                <Sparkles className="w-3.5 h-3.5" />
                 <span>AI 스캔</span>
               </button>
             </div>
           ) : (
-            <div className="bg-[#12221A] border border-[#10B981]/40 p-2.5 space-y-1 text-xs font-mono">
+            <div className="bg-[#12221A] border border-[#10B981]/40 p-3 space-y-1.5 text-xs font-mono">
               <div className="flex items-center justify-between">
-                <span className="flex items-center gap-1.5 text-[#10B981] font-bold text-[11px]">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981]" />
-                  <span>AI_VISION_OCR_MAPPED ({analysis.detectedElements.length}개 요소를 AI가 읽음)</span>
+                <span className="flex items-center gap-1.5 text-[#10B981] font-bold text-xs">
+                  <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
+                  <span>AI OCR 인지 완료 ({analysis.detectedElements.length}개 요소 추출)</span>
                 </span>
                 <button
                   onClick={onReanalyzeAi}
-                  className="text-[#8C93A6] hover:text-white underline text-[10px] shrink-0"
+                  className="text-[#8C93A6] hover:text-white underline text-xs shrink-0"
                 >
                   재스캔
                 </button>
               </div>
-              <p className="text-[10px] text-[#A2A9B8] font-sans leading-normal">
-                AI가 포스터 내부 텍스트 위치를 정밀하게 인지하여, 외곽 마진(L:{gridParams.marginLeft}% / T:{gridParams.marginTop}%)과 {gridParams.columns}컬럼 축에 그리드를 자동 맞춤했습니다.
+              <p className="text-xs text-[#C2C8D6] font-sans leading-relaxed">
+                포스터 내 핵심 텍스트와 이미지 위치를 인지하여, 외곽 마진(좌우:{gridParams.marginLeft}% / 상하:{gridParams.marginTop}%)과 {gridParams.columns}컬럼 세로축 그리드를 자동으로 산출했습니다.
               </p>
             </div>
           )}
@@ -227,52 +230,52 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
       )}
 
       {/* Navigation Tabs */}
-      <div className="grid grid-cols-4 gap-1 my-3 bg-[#14161F] p-1 border border-[#232733] shrink-0 text-[10px] font-mono">
+      <div className="grid grid-cols-4 gap-1.5 my-3.5 bg-[#14161F] p-1.5 border border-[#232733] shrink-0 text-xs font-mono">
         <button
           onClick={() => setActiveTab('candidates')}
-          className={`py-2 px-1 font-bold transition-all flex items-center justify-center gap-1 uppercase ${
+          className={`py-2 px-1.5 font-bold transition-all flex items-center justify-center gap-1.5 uppercase ${
             activeTab === 'candidates'
               ? 'bg-[#FF3B30] text-white shadow'
               : 'text-[#8C93A6] hover:text-white hover:bg-[#1C1F2B]'
           }`}
         >
-          <Compass className="w-3 h-3" />
+          <Compass className="w-3.5 h-3.5" />
           <span>그리드 가설</span>
         </button>
 
         <button
           onClick={() => setActiveTab('elements')}
-          className={`py-2 px-1 font-bold transition-all flex items-center justify-center gap-1 uppercase ${
+          className={`py-2 px-1.5 font-bold transition-all flex items-center justify-center gap-1.5 uppercase ${
             activeTab === 'elements'
               ? 'bg-[#FF3B30] text-white shadow'
               : 'text-[#8C93A6] hover:text-white hover:bg-[#1C1F2B]'
           }`}
         >
-          <Layers className="w-3 h-3" />
+          <Layers className="w-3.5 h-3.5" />
           <span>요소 위치</span>
         </button>
 
         <button
           onClick={() => setActiveTab('options')}
-          className={`py-2 px-1 font-bold transition-all flex items-center justify-center gap-1 uppercase ${
+          className={`py-2 px-1.5 font-bold transition-all flex items-center justify-center gap-1.5 uppercase ${
             activeTab === 'options'
               ? 'bg-[#FF3B30] text-white shadow'
               : 'text-[#8C93A6] hover:text-white hover:bg-[#1C1F2B]'
           }`}
         >
-          <Sliders className="w-3 h-3" />
+          <Sliders className="w-3.5 h-3.5" />
           <span>직접 조정</span>
         </button>
 
         <button
           onClick={() => setActiveTab('report')}
-          className={`py-2 px-1 font-bold transition-all flex items-center justify-center gap-1 uppercase ${
+          className={`py-2 px-1.5 font-bold transition-all flex items-center justify-center gap-1.5 uppercase ${
             activeTab === 'report'
               ? 'bg-[#FF3B30] text-white shadow'
               : 'text-[#8C93A6] hover:text-white hover:bg-[#1C1F2B]'
           }`}
         >
-          <FileText className="w-3 h-3" />
+          <FileText className="w-3.5 h-3.5" />
           <span>분석 요약</span>
         </button>
       </div>
@@ -512,8 +515,19 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-white uppercase flex items-center gap-1.5">
                   <Sliders className="w-3.5 h-3.5 text-[#FF3B30]" />
-                  <span>MANUAL_FINE_TUNING</span>
+                  <span>MANUAL_FINE_TUNING (직접 수치 조정)</span>
                 </span>
+
+                {onResetGridParams && (
+                  <button
+                    onClick={onResetGridParams}
+                    className="flex items-center gap-1.5 text-xs font-mono font-bold px-2.5 py-1 bg-[#1A1D27] hover:bg-[#FF3B30] text-[#C2C8D6] hover:text-white border border-[#2B3042] hover:border-[#FF3B30] transition-all active:scale-95 shadow shrink-0"
+                    title="AI가 스캔한 최초 그리드 설정 상태로 리셋합니다"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>초기화 (Reset)</span>
+                  </button>
+                )}
               </div>
 
               <div className="bg-[#12141C] p-3 border border-[#232733] space-y-3 text-[11px]">
@@ -608,49 +622,50 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
 
         {/* TAB 4: Swiss Analysis Report */}
         {activeTab === 'report' && (
-          <div className="space-y-3">
-            <div className="bg-[#12141C] p-3.5 border border-[#232733] space-y-2">
-              <div className="flex items-center justify-between border-b border-[#232733] pb-2">
-                <h3 className="text-xs font-bold text-white uppercase flex items-center gap-1.5 font-mono">
-                  <FileText className="w-3.5 h-3.5 text-[#FF3B30]" />
+          <div className="space-y-4">
+            {/* Main Korean Summary Card */}
+            <div className="bg-[#141622] p-4.5 border-2 border-[#FF3B30] space-y-3 shadow-xl">
+              <div className="flex items-center justify-between border-b border-[#2B3040] pb-2.5">
+                <h3 className="text-sm font-extrabold text-white uppercase flex items-center gap-2 font-mono">
+                  <FileText className="w-4.5 h-4.5 text-[#FF3B30]" />
                   <span>스위스 디자인 종합 분석 요약</span>
                 </h3>
-                <span className="text-[10px] font-bold text-[#FF3B30] bg-[#FF3B30]/10 px-2 py-0.5 border border-[#FF3B30]/30 font-mono">
+                <span className="text-xs font-bold text-[#FF3B30] bg-[#FF3B30]/15 px-2.5 py-0.5 border border-[#FF3B30]/40 font-mono">
                   신뢰도 {analysis.confidence}%
                 </span>
               </div>
-              <p className="text-[11px] text-[#A6ADB8] font-sans leading-relaxed pt-1">
+              <p className="text-sm sm:text-base text-white font-sans leading-relaxed pt-1 font-medium">
                 {analysis.summary}
               </p>
             </div>
 
             {/* Key Visual Statistics Grid */}
-            <div className="grid grid-cols-2 gap-2 font-mono text-[11px]">
-              <div className="bg-[#12141C] p-2.5 border border-[#232733] space-y-1">
-                <span className="text-[9px] text-[#8C93A6] block">타이포 위계 평가</span>
-                <span className="font-bold text-[#F59E0B] block text-xs truncate">
-                  {analysis.typeHierarchyRating || 'A등급 (우수)'}
+            <div className="grid grid-cols-2 gap-2.5 font-sans text-xs">
+              <div className="bg-[#12141C] p-3 border border-[#232733] space-y-1">
+                <span className="text-xs text-[#8C93A6] block font-mono">타이포 위계 평가</span>
+                <span className="font-bold text-[#F59E0B] block text-sm truncate">
+                  {analysis.typeHierarchyRating || '우수 (A등급)'}
                 </span>
               </div>
-              <div className="bg-[#12141C] p-2.5 border border-[#232733] space-y-1">
-                <span className="text-[9px] text-[#8C93A6] block">여백 비율 (Margin/Gutter)</span>
-                <span className="font-bold text-[#10B981] block text-xs">
-                  {analysis.whitespaceRatio || '35%'}
+              <div className="bg-[#12141C] p-3 border border-[#232733] space-y-1">
+                <span className="text-xs text-[#8C93A6] block font-mono">여백 활용 비율</span>
+                <span className="font-bold text-[#10B981] block text-sm">
+                  {analysis.whitespaceRatio || '35% (여백 균형 우수)'}
                 </span>
               </div>
             </div>
 
             {/* Swiss Principles List */}
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-bold text-[#8C93A6] uppercase block font-mono">
-                검증된 스위스 타이포그래피 원칙
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-[#A2A9B8] uppercase block font-mono">
+                검증된 스위스 타이포그래피 핵심 원칙
               </span>
               {analysis.swissPrinciples.map((principle, idx) => (
                 <div
                   key={idx}
-                  className="p-2.5 bg-[#12141C] border border-[#232733] text-[11px] text-white flex items-center gap-2 font-sans leading-snug"
+                  className="p-3 bg-[#12141C] border border-[#232733] text-xs sm:text-sm text-white flex items-start gap-2.5 font-sans leading-relaxed"
                 >
-                  <span className="w-1.5 h-1.5 bg-[#FF3B30] shrink-0" />
+                  <span className="w-2 h-2 bg-[#FF3B30] rounded-full shrink-0 mt-1.5" />
                   <span>{principle}</span>
                 </div>
               ))}
@@ -658,15 +673,15 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
 
             {/* Color Palette Chips */}
             {analysis.colorPalette && (
-              <div className="space-y-1.5 pt-2 border-t border-[#232733]">
-                <span className="text-[10px] font-bold text-[#8C93A6] uppercase block font-mono">
-                  포스터 추출 색상 팔레트
+              <div className="space-y-2 pt-2 border-t border-[#232733]">
+                <span className="text-xs font-bold text-[#A2A9B8] uppercase block font-mono">
+                  포스터 추출 대표 색상 팔레트
                 </span>
                 <div className="flex items-center gap-2">
                   {analysis.colorPalette.map((hex, i) => (
                     <div
                       key={i}
-                      className="flex-1 h-8 border border-white/20 flex items-center justify-center text-[9px] font-bold shadow font-mono"
+                      className="flex-1 h-9 border border-white/20 flex items-center justify-center text-xs font-bold shadow font-mono"
                       style={{ backgroundColor: hex, color: hex === '#FFFFFF' || hex === '#F8FAFC' ? '#000' : '#FFF' }}
                     >
                       {hex}

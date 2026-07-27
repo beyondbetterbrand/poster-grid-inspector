@@ -56,29 +56,24 @@ async function startServer() {
 
       const prompt = `You are an expert graphic design AI and computer vision inspector specialized in poster design, Swiss typography, and grid layout analysis.
 
-Analyze the uploaded poster image carefully and perform deep visual OCR element detection, margin boundary snapping, and multi-hypothesis grid mapping:
+Analyze this poster image from a Swiss Typography & Graphic Design perspective:
 
-1. Visual OCR & Precise Bounding Boxes:
-   - Identify ALL major distinct text blocks and visual elements in the poster image.
-   - For labels, transcribe the ACTUAL text written in the image.
-   - Calculate precise bounding box percentage coordinates relative to the full poster canvas (0-100%):
-     - x: left edge percentage (0 to 100)
-     - y: top edge percentage (0 to 100)
-     - width: element width percentage
-     - height: element height percentage
-   - Provide 4 to 12 distinct elements.
+CRITICAL INSTRUCTIONS:
+1. ALL text responses (systemNameKo, title, summary, alignmentNote, swissPrinciples, typeHierarchyRating, candidateGrids.rationale) MUST be written in friendly, natural, and professional Korean (한국어).
 
-2. Margin & Grid Structure Mapping:
-   - Determine underlying system type from ['swiss_modular', '12_column', '6_column', '3_column', 'asymmetric', 'baseline_grid', 'golden_ratio', 'rule_of_thirds', 'freeform_organic']
-   - If elements do not follow rigid mathematical grid lines (e.g. hand-drawn, expressive, B-side poster, deconstructed layout), classify as 'freeform_organic'.
-   - Determine outer margins matching the outermost text/visual bounding boxes.
-   - Determine exact column and row counts (e.g. 2, 3, 4, 6, 12 columns, and 3, 4, 5, 8 rows).
-   - Estimate columnGutter and rowGutter (1.0 to 5.0%).
+2. Summary (한글 분석 요약):
+   - Write a rich, easy-to-understand 3-4 sentence report in Korean explaining the poster's visual layout, typography alignment, margins, and grid system.
+   - Describe clearly how the title, subtitle, images, and body text are structured along vertical columns or horizontal baselines, and how it aligns with Swiss design principles (balance, legibility, rhythm).
 
-3. Candidate Grid Hypotheses Evaluation & Korean Descriptions:
-   - CRITICAL REQUIREMENT: Write ALL text description fields (systemNameKo, title, summary, alignmentNote, swissPrinciples, typeHierarchyRating) in clear, fluent Korean (한글).
-   - "summary" should be a detailed, insightful 2-3 sentence Swiss grid analysis report in Korean explaining how text/images align to margins, baselines, and grid columns.
-   - Propose 2-3 candidate grid hypotheses (candidateGrids) with varying column/row structure along with a fitScore percentage (0-100%) and Korean rationale explaining why that grid works for the poster.
+3. Visual OCR & Precise Bounding Boxes:
+   - Identify 4 to 12 major distinct text blocks and visual elements in the poster image.
+   - Provide precise percentage bounding boxes relative to the poster canvas (0-100%): x, y, width, height.
+   - For alignmentNote, write a short Korean description (e.g., "왼쪽 1컬럼 축에 정렬된 메인 타이틀").
+
+4. Grid Parameters & Candidates:
+   - Determine underlying systemType ('swiss_modular', '12_column', '6_column', '3_column', 'asymmetric', 'baseline_grid', 'golden_ratio', 'rule_of_thirds', 'freeform_organic').
+   - Provide systemNameKo in clear Korean (e.g., "스위스 모듈러 12컬럼 시스템").
+   - Suggest 2-3 candidate grid hypotheses with fitScore (0-100%) and Korean rationale.
 
 Respond ONLY with valid JSON conforming to the schema.`;
 

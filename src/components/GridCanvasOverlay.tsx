@@ -49,11 +49,20 @@ export const GridCanvasOverlay: React.FC<GridCanvasOverlayProps> = ({
     }
   };
 
-  const handleZoomIn = () => setZoom((prev) => Math.min(3, prev + 0.2));
-  const handleZoomOut = () => setZoom((prev) => Math.max(0.5, prev - 0.2));
+  const handleZoomIn = () => setZoom((prev) => Math.min(4, Math.round((prev + 0.2) * 10) / 10));
+  const handleZoomOut = () => setZoom((prev) => Math.max(0.5, Math.round((prev - 0.2) * 10) / 10));
   const handleResetZoom = () => {
     setZoom(1);
     setPan({ x: 0, y: 0 });
+  };
+
+  // Mouse wheel zoom support
+  const handleWheel = (e: React.WheelEvent) => {
+    if (e.deltaY < 0) {
+      setZoom((prev) => Math.min(4, Math.round((prev + 0.15) * 100) / 100));
+    } else {
+      setZoom((prev) => Math.max(0.5, Math.round((prev - 0.15) * 100) / 100));
+    }
   };
 
   // Pan Handlers
@@ -227,7 +236,8 @@ export const GridCanvasOverlay: React.FC<GridCanvasOverlayProps> = ({
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
-            className="flex-1 relative cursor-grab active:cursor-grabbing flex items-center justify-center p-4 bg-swiss-grid bg-grid-dots"
+            onWheel={handleWheel}
+            className="flex-1 relative cursor-grab active:cursor-grabbing flex items-center justify-center p-4 bg-swiss-grid bg-grid-dots overflow-hidden"
           >
             {isAnalyzing && (
               <div className="absolute inset-0 bg-[#0A0B0E]/90 backdrop-blur-md z-30 flex flex-col items-center justify-center gap-3">
@@ -241,32 +251,51 @@ export const GridCanvasOverlay: React.FC<GridCanvasOverlayProps> = ({
               </div>
             )}
 
-            {/* Scalable Canvas Container */}
-            <div
-              style={{
-                transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-                transition: isPanning ? 'none' : 'transform 0.15s ease-out',
-              }}
-              className="relative max-w-full max-h-full flex items-center justify-center border border-[#3A3F52]/60 shadow-2xl overflow-hidden"
-            >
-              {/* Poster Image Layer */}
-              {imageSrc && (
-                <img
-                  ref={imageRef}
-                  src={imageSrc}
-                  alt="Poster Analysis Canvas"
-                  onLoad={handleImageLoad}
-                  className={`max-h-[510px] sm:max-h-[560px] w-auto object-contain block transition-all duration-300 ${
-                    isSpotlightMode
-                      ? 'opacity-20 filter grayscale contrast-150 brightness-90'
-                      : 'opacity-100'
-                  }`}
-                />
-              )}
+            {/* Scalable High-Precision Canvas Container */}
+            {(() => {
+              const baseCanvasHeight = 540;
+              const canvasDisplayHeight = Math.round(baseCanvasHeight * zoom);
+              const canvasDisplayWidth = imgDimensions.height > 0
+                ? Math.round(baseCanvasHeight * (imgDimensions.width / imgDimensions.height) * zoom)
+                : Math.round(baseCanvasHeight * 0.75 * zoom);
+
+              return (
+                <div
+                  style={{
+                    width: `${canvasDisplayWidth}px`,
+                    height: `${canvasDisplayHeight}px`,
+                    transform: `translate3d(${pan.x}px, ${pan.y}px, 0)`,
+                    transition: isPanning ? 'none' : 'transform 0.08s ease-out, width 0.08s ease-out, height 0.08s ease-out',
+                  }}
+                  className="relative shrink-0 flex items-center justify-center border border-[#3A3F52]/60 shadow-2xl overflow-hidden"
+                >
+                  {/* Poster Image Layer */}
+                  {imageSrc && (
+                    <img
+                      ref={imageRef}
+                      src={imageSrc}
+                      alt="Poster Analysis Canvas"
+                      onLoad={handleImageLoad}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain',
+                        imageRendering: 'high-quality',
+                      }}
+                      className={`block transition-all duration-300 ${
+                        isSpotlightMode
+                          ? 'opacity-20 filter grayscale contrast-150 brightness-90'
+                          : 'opacity-100'
+                      }`}
+                    />
+                  )}
 
               {/* SVG Grid Overlay */}
               <svg
                 viewBox={`0 0 ${w} ${h}`}
+                shapeRendering="geometricPrecision"
+                textRendering="geometricPrecision"
+                colorInterpolationFilters="sRGB"
                 className={`absolute inset-0 w-full h-full pointer-events-auto transition-all duration-300 ${
                   isSpotlightMode ? 'drop-shadow-[0_0_12px_rgba(255,59,48,0.45)]' : ''
                 }`}
@@ -506,20 +535,22 @@ export const GridCanvasOverlay: React.FC<GridCanvasOverlayProps> = ({
                         {/* Top Label Tag Badge */}
                         <rect
                           x={bx}
-                          y={Math.max(0, by - 24)}
+                          y={Math.max(0, by - 28)}
                           width={badgeWidth}
-                          height={24}
+                          height={28}
                           fill={isHovered ? '#000000' : '#FF3B30'}
                           stroke="#FF3B30"
-                          strokeWidth={isHovered ? 2 : 1}
+                          strokeWidth={isHovered ? 2.5 : 1.5}
+                          vectorEffect="non-scaling-stroke"
                         />
                         <text
                           x={bx + 8}
-                          y={Math.max(16, by - 7)}
+                          y={Math.max(19, by - 9)}
                           fontFamily="JetBrains Mono, monospace"
-                          fontSize={11}
-                          fontWeight="bold"
+                          fontSize={13}
+                          fontWeight="700"
                           fill={isHovered ? '#FF3B30' : '#FFFFFF'}
+                          letterSpacing="0.02em"
                         >
                           {labelText.length > 28 ? labelText.slice(0, 26) + '…' : labelText}
                         </text>
@@ -530,18 +561,20 @@ export const GridCanvasOverlay: React.FC<GridCanvasOverlayProps> = ({
                             <rect
                               x={bx}
                               y={by + bh + 4}
-                              width={Math.max(bw, 200)}
-                              height={28}
+                              width={Math.max(bw, 220)}
+                              height={30}
                               fill="#0F1015"
                               stroke="#FF3B30"
                               strokeWidth={1.5}
+                              vectorEffect="non-scaling-stroke"
                             />
                             <text
                               x={bx + 8}
-                              y={by + bh + 22}
+                              y={by + bh + 24}
                               fontFamily="JetBrains Mono, monospace"
-                              fontSize={10}
-                              fill="#C2C8D6"
+                              fontSize={12}
+                              fontWeight="600"
+                              fill="#FFFFFF"
                             >
                               POS: {Math.round(el.x)}%, {Math.round(el.y)}% | SIZE: {Math.round(el.width)}×{Math.round(el.height)}%
                             </text>
@@ -554,9 +587,9 @@ export const GridCanvasOverlay: React.FC<GridCanvasOverlayProps> = ({
 
               {/* Bottom Canvas Overlay AI Vision Status Badge */}
               {detectedElements.length > 0 && !isAnalyzing && (
-                <div className="absolute bottom-3 left-3 bg-[#0F1015]/90 border border-[#232733] px-3 py-1.5 text-[10px] font-mono text-[#C2C8D6] flex items-center gap-2 backdrop-blur-sm shadow-lg pointer-events-none z-20">
-                  <span className="w-2 h-2 rounded-full bg-[#FF3B30] animate-pulse shrink-0" />
-                  <span>AI_VISION_OCR: <strong className="text-white">{detectedElements.length}개 요소</strong> 감지 및 정렬축 수합 완료</span>
+                <div className="absolute bottom-3 left-3 bg-[#0F1015]/95 border border-[#232733] px-3.5 py-2 text-xs font-mono text-[#C2C8D6] flex items-center gap-2.5 backdrop-blur-sm shadow-xl pointer-events-none z-20">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#FF3B30] animate-pulse shrink-0" />
+                  <span>AI 스마트 비전: <strong className="text-white font-bold">{detectedElements.length}개 요소</strong> 감지 및 그리드축 정렬 완료</span>
                 </div>
               )}
 
@@ -566,21 +599,23 @@ export const GridCanvasOverlay: React.FC<GridCanvasOverlayProps> = ({
                   {/* Moving Scan Laser */}
                   <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#FF3B30] to-transparent shadow-[0_0_20px_#FF3B30] animate-pulse top-1/2 -translate-y-1/2" />
                   
-                  <div className="bg-[#0F1015]/95 border border-[#FF3B30] p-4 text-center max-w-sm shadow-2xl space-y-2 font-mono">
-                    <div className="flex items-center justify-center gap-2 text-white text-xs font-bold uppercase tracking-wider">
+                  <div className="bg-[#0F1015]/95 border border-[#FF3B30] p-5 text-center max-w-md shadow-2xl space-y-2.5 font-mono">
+                    <div className="flex items-center justify-center gap-2 text-white text-sm font-bold uppercase tracking-wider">
                       <Sparkles className="w-4 h-4 text-[#FF3B30] animate-spin" />
-                      <span>SWISS_VISION_SCANNING...</span>
+                      <span>포스터 레이아웃 AI 정밀 분석중...</span>
                     </div>
-                    <p className="text-[11px] text-[#C2C8D6] font-sans leading-relaxed">
-                      AI가 이미지 내 스위스 그리드 컬럼과 텍스트 영역을 정밀 레이저 정렬 중입니다.
+                    <p className="text-xs sm:text-sm text-[#C2C8D6] font-sans leading-relaxed">
+                      Gemini Vision AI가 이미지 속 텍스트 수평축과 스위스 그리드 구조를 다각도로 정밀 측정하고 있습니다.
                     </p>
-                    <div className="inline-block bg-[#FF3B30]/10 border border-[#FF3B30]/40 px-2.5 py-1 text-[10px] text-[#FF3B30] font-bold font-sans">
-                      ⏱️ 예상 소요 시간: 약 5초 ~ 10초
+                    <div className="inline-block bg-[#FF3B30]/10 border border-[#FF3B30]/40 px-3 py-1 text-xs text-[#FF3B30] font-bold font-sans">
+                      ⏱️ 예상 소요 시간: 약 3초 ~ 7초
                     </div>
                   </div>
                 </div>
               )}
             </div>
+          );
+        })()}
           </div>
         </div>
       </div>

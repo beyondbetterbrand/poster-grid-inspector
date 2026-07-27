@@ -37,9 +37,9 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={onUploadClick}
               disabled={isAnalyzing}
-              className="flex items-center gap-1.5 text-[11px] font-mono font-bold px-3 py-2 bg-[#1A1D26] hover:bg-[#252A38] text-[#C2C8D6] border border-[#2D3345] transition-all active:scale-95"
+              className="flex items-center gap-1.5 text-xs sm:text-sm font-mono font-bold px-3.5 py-2 bg-[#1A1D26] hover:bg-[#252A38] text-[#C2C8D6] border border-[#2D3345] transition-all active:scale-95"
             >
-              <Upload className="w-3.5 h-3.5 text-[#FF3B30]" />
+              <Upload className="w-4 h-4 text-[#FF3B30]" />
               <span>이미지 변경</span>
             </button>
           )}
@@ -48,7 +48,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               onClick={onReanalyzeAi}
               disabled={isAnalyzing}
-              className={`flex items-center gap-1.5 text-[11px] font-mono font-bold px-3 py-2 transition-all border ${
+              className={`flex items-center gap-1.5 text-xs sm:text-sm font-mono font-bold px-3.5 py-2 transition-all border ${
                 isAnalyzing
                   ? 'bg-[#181B24] text-[#5C6479] border-[#2A2E3B] cursor-not-allowed'
                   : 'bg-[#FF3B30]/15 hover:bg-[#FF3B30]/25 text-[#FF6B60] border-[#FF3B30]/40 active:scale-95'
@@ -56,9 +56,9 @@ export const Header: React.FC<HeaderProps> = ({
               title="포스터를 Gemini Vision AI로 다시 분석합니다"
             >
               {isAnalyzing ? (
-                <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#FF3B30]" />
+                <RefreshCw className="w-4 h-4 animate-spin text-[#FF3B30]" />
               ) : (
-                <Sparkles className="w-3.5 h-3.5 text-[#FF3B30]" />
+                <Sparkles className="w-4 h-4 text-[#FF3B30]" />
               )}
               <span className="hidden sm:inline">AI 비전 스캔</span>
             </button>
@@ -67,13 +67,13 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={onOpenExportModal}
             disabled={!hasImage || isAnalyzing}
-            className={`flex items-center gap-1.5 text-[11px] font-mono font-bold px-3.5 py-2 transition-all shadow-md ${
+            className={`flex items-center gap-1.5 text-xs sm:text-sm font-mono font-bold px-4 py-2 transition-all shadow-md ${
               hasImage && !isAnalyzing
                 ? 'bg-[#FF3B30] hover:bg-[#E03126] text-white active:scale-95'
                 : 'bg-[#181B24] text-[#484E61] cursor-not-allowed border border-[#232733]'
             }`}
           >
-            <FileDown className="w-3.5 h-3.5" />
+            <FileDown className="w-4 h-4" />
             <span>SVG 내보내기</span>
           </button>
         </div>

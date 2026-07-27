@@ -73,12 +73,12 @@ export const AnalysisReport: React.FC<AnalysisReportProps> = ({
       </div>
 
       {/* 3-Second Quick Summary Card */}
-      <div className="bg-gradient-to-r from-blue-950/60 to-indigo-950/60 p-4 rounded-xl border border-blue-500/30 space-y-2">
-        <div className="flex items-center gap-2 text-xs font-bold text-blue-300">
+      <div className="bg-gradient-to-r from-blue-950/60 to-indigo-950/60 p-4.5 rounded-xl border-2 border-blue-500/40 space-y-2">
+        <div className="flex items-center gap-2 text-sm font-bold text-blue-300">
           <Sparkles className="w-4 h-4 text-blue-400 shrink-0" />
-          <span>💡 3초 만에 이해하는 포스터 구도 핵심</span>
+          <span>💡 스위스 포스터 레이아웃 분석 요약</span>
         </div>
-        <p className="text-xs text-slate-200 leading-relaxed font-medium">
+        <p className="text-sm sm:text-base text-slate-100 leading-relaxed font-medium">
           {analysis.summary}
         </p>
       </div>

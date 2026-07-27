@@ -275,6 +275,37 @@ export default function App() {
     setIsAiAnalyzed(false);
   };
 
+  const handleResetGridParams = () => {
+    if (analysis && analysis.gridParams) {
+      setGridParams({ ...analysis.gridParams });
+    } else {
+      setGridParams({
+        columns: 12,
+        rows: 8,
+        marginTop: 8,
+        marginBottom: 8,
+        marginLeft: 8,
+        marginRight: 8,
+        columnGutter: 2,
+        rowGutter: 2,
+        baselineSpacing: 2.5,
+        showBaseline: true,
+        diagonalAngle: 0,
+        showDiagonal: false,
+        color: '#FF3B30',
+        opacity: 0.85,
+        strokeWidth: 1.5,
+        showMargins: true,
+        showColumns: true,
+        showRows: true,
+        showKeylines: true,
+        showBoundingBoxes: true,
+        showGoldenRatio: false,
+        showRuleOfThirds: false,
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0A0B0E] bg-swiss-grid text-white font-mono antialiased flex flex-col selection:bg-[#FF3B30] selection:text-white">
       {/* Header Bar */}
@@ -324,6 +355,7 @@ export default function App() {
                 onReanalyzeAi={() => runAiVisionAnalysis()}
                 gridParams={gridParams}
                 onChangeParams={setGridParams}
+                onResetGridParams={handleResetGridParams}
               />
             </div>
           </div>
