@@ -100,10 +100,17 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
             드래그 앤 드롭하거나 클릭하여 파일을 로드합니다. (PNG, JPG, WEBP, SVG)
           </p>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mb-4">
             <span className="text-xs font-bold text-white bg-[#FF3B30] px-4 py-2 uppercase transition-all shadow group-hover:bg-[#E03126]">
               파일 탐색기 열기
             </span>
+          </div>
+
+          <div className="mt-2 text-[10px] text-[#A2A9B8] bg-[#161922] border border-[#2B3040] px-3 py-2 text-left flex items-start gap-2 max-w-sm font-sans">
+            <span className="text-[#FF3B30] font-bold font-mono shrink-0">[무료 API 안내]</span>
+            <p className="leading-normal">
+              무료 Gemini API(15 RPM)로 작동 중입니다. 사람이 갑자기 몰릴 경우 분석 초과 오류가 날 수 있으며, 약 15초 후 [다시 분석]을 누르면 정상 처리됩니다.
+            </p>
           </div>
 
           {errorMessage && (
