@@ -205,6 +205,14 @@ Respond ONLY with valid JSON conforming to the schema.`;
       const rawText = response.text || "{}";
       const parsedData = JSON.parse(rawText);
 
+      if (typeof parsedData.confidence === 'number') {
+        if (parsedData.confidence <= 1) {
+          parsedData.confidence = Math.round(parsedData.confidence * 100);
+        } else {
+          parsedData.confidence = Math.round(parsedData.confidence);
+        }
+      }
+
       // Cache result for identical image base64
       analysisCache.set(cacheKey, parsedData);
 

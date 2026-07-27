@@ -1,8 +1,9 @@
 import React from 'react';
-import { Grid, FileDown, Sparkles, RefreshCw, Upload } from 'lucide-react';
+import { Grid, FileDown, Sparkles, RefreshCw, Upload, BookOpen } from 'lucide-react';
 
 interface HeaderProps {
   onOpenExportModal: () => void;
+  onOpenManualModal?: () => void;
   onReanalyzeAi?: () => void;
   onUploadClick?: () => void;
   hasImage: boolean;
@@ -11,6 +12,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   onOpenExportModal,
+  onOpenManualModal,
   onReanalyzeAi,
   onUploadClick,
   hasImage,
@@ -33,6 +35,18 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2 sm:gap-2.5">
+          {onOpenManualModal && (
+            <button
+              onClick={onOpenManualModal}
+              className="flex items-center gap-1.5 text-xs sm:text-sm font-mono font-bold px-3.5 py-2 bg-[#1A1D26] hover:bg-[#252A38] text-[#38BDF8] border border-[#38BDF8]/30 transition-all active:scale-95 shadow-sm"
+              title="분석 기준, 용어 정의 및 매뉴얼 가이드를 확인합니다"
+            >
+              <BookOpen className="w-4 h-4 text-[#38BDF8]" />
+              <span className="hidden md:inline">분석 매뉴얼 Guide</span>
+              <span className="md:hidden">매뉴얼</span>
+            </button>
+          )}
+
           {hasImage && onUploadClick && (
             <button
               onClick={onUploadClick}

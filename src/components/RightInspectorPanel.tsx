@@ -27,6 +27,7 @@ interface RightInspectorPanelProps {
   gridParams: GridParams;
   onChangeParams: (newParams: GridParams) => void;
   onResetGridParams?: () => void;
+  onOpenManualModal?: () => void;
 }
 
 const COLOR_PRESETS = [
@@ -128,6 +129,7 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
   gridParams,
   onChangeParams,
   onResetGridParams,
+  onOpenManualModal,
 }) => {
   const [activeTab, setActiveTab] = useState<'candidates' | 'elements' | 'options' | 'report'>('candidates');
 
@@ -158,30 +160,30 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
     <div className="bg-[#0F1015] border border-[#232733] text-white p-5 sm:p-6 shadow-2xl flex flex-col min-h-[560px] lg:min-h-[calc(100vh-160px)] lg:max-h-[calc(100vh-160px)] h-full sticky top-4">
       {/* Panel Top Title Header */}
       <div className="pb-3.5 border-b border-[#232733] shrink-0 space-y-2">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 min-w-0">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2 min-w-0">
             <span className="text-xs font-mono font-bold text-[#FF3B30] bg-[#FF3B30]/10 border border-[#FF3B30]/30 px-2.5 py-1 uppercase whitespace-nowrap shrink-0">
               {analysis.systemNameKo}
             </span>
-            <span className="text-xs font-mono text-[#8C93A6] whitespace-nowrap shrink-0">
-              신뢰도 {analysis.confidence}%
+            <span className="text-xs font-mono text-[#8C93A6] bg-[#161821] px-2 py-1 border border-[#232733] whitespace-nowrap shrink-0">
+              신뢰도 {analysis.confidence <= 1 ? Math.round(analysis.confidence * 100) : Math.round(analysis.confidence)}%
             </span>
           </div>
 
           {analysis.typeHierarchyRating && (
             <div
-              className="flex items-center gap-1.5 bg-[#161821] px-2.5 py-1 border border-[#232733] shrink-0"
+              className="flex items-center gap-1.5 bg-[#161821] px-2.5 py-1 border border-[#232733] max-w-full"
               title={analysis.typeHierarchyRating}
             >
               <Award className="w-4 h-4 text-[#F59E0B] shrink-0" />
-              <span className="text-xs font-mono font-bold text-[#F59E0B] truncate">
+              <span className="text-xs font-mono font-bold text-[#F59E0B] break-words">
                 {analysis.typeHierarchyRating}
               </span>
             </div>
           )}
         </div>
 
-        <h2 className="text-sm sm:text-base font-extrabold text-white truncate leading-snug font-mono uppercase tracking-wide" title={analysis.title}>
+        <h2 className="text-sm sm:text-base font-extrabold text-white leading-snug font-mono uppercase tracking-wide break-words" title={analysis.title}>
           {analysis.title}
         </h2>
       </div>
@@ -688,6 +690,26 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* System Manual Guide Callout Card */}
+            {onOpenManualModal && (
+              <div className="mt-4 p-3.5 bg-[#161B26] border border-[#38BDF8]/30 rounded-lg flex items-center justify-between gap-3 text-xs">
+                <div className="space-y-0.5">
+                  <span className="font-mono font-bold text-[#38BDF8] block text-xs">
+                    💡 분석 기준 및 지표(FIT, 신뢰도 등) 매뉴얼
+                  </span>
+                  <span className="text-[11px] text-[#A0A7BA] block">
+                    AI 분석 원리, 용어 정의 및 가설 활용법을 확인해보세요.
+                  </span>
+                </div>
+                <button
+                  onClick={onOpenManualModal}
+                  className="shrink-0 bg-[#38BDF8]/15 hover:bg-[#38BDF8]/25 text-[#38BDF8] border border-[#38BDF8]/40 font-mono font-bold px-3 py-1.5 text-xs transition-all active:scale-95"
+                >
+                  매뉴얼 열기
+                </button>
               </div>
             )}
           </div>

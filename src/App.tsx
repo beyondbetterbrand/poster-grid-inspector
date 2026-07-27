@@ -6,6 +6,7 @@ import { RightInspectorPanel } from './components/RightInspectorPanel';
 import { ExportModal } from './components/ExportModal';
 import { HelpModal } from './components/HelpModal';
 import { BrockmannGuideModal } from './components/BrockmannGuideModal';
+import { SystemManualModal } from './components/SystemManualModal';
 import { prepareImageForVisionApi, analyzePosterImageLocally } from './utils/imageUtils';
 import { generateCandidateGrids, optimizeGridToElements } from './utils/gridOptimizer';
 import {
@@ -53,6 +54,7 @@ export default function App() {
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
   const [isHelpModalOpen, setIsHelpModalOpen] = useState<boolean>(false);
   const [isBrockmannModalOpen, setIsBrockmannModalOpen] = useState<boolean>(false);
+  const [isManualModalOpen, setIsManualModalOpen] = useState<boolean>(false);
 
   const [isAiAnalyzed, setIsAiAnalyzed] = useState<boolean>(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
@@ -311,6 +313,7 @@ export default function App() {
       {/* Header Bar */}
       <Header
         onOpenExportModal={() => setIsExportModalOpen(true)}
+        onOpenManualModal={() => setIsManualModalOpen(true)}
         onReanalyzeAi={() => runAiVisionAnalysis()}
         onUploadClick={handleUploadNewImageTrigger}
         hasImage={!!imageSrc}
@@ -356,6 +359,7 @@ export default function App() {
                 gridParams={gridParams}
                 onChangeParams={setGridParams}
                 onResetGridParams={handleResetGridParams}
+                onOpenManualModal={() => setIsManualModalOpen(true)}
               />
             </div>
           </div>
@@ -379,6 +383,12 @@ export default function App() {
       <BrockmannGuideModal
         isOpen={isBrockmannModalOpen}
         onClose={() => setIsBrockmannModalOpen(false)}
+      />
+
+      {/* System Analysis Manual & Glossary Guide Modal */}
+      <SystemManualModal
+        isOpen={isManualModalOpen}
+        onClose={() => setIsManualModalOpen(false)}
       />
 
       {/* Footer */}

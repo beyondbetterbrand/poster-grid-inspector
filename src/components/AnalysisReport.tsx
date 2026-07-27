@@ -52,11 +52,11 @@ export const AnalysisReport: React.FC<AnalysisReportProps> = ({
       {/* Top Title & Confidence badge */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
         <div>
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex flex-wrap items-center gap-2 mb-1">
             <span className="text-[11px] font-bold text-blue-400 bg-blue-500/10 border border-blue-500/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
               {analysis.systemNameKo}
             </span>
-            <span className="text-xs text-slate-400">추정 신뢰도 {analysis.confidence}%</span>
+            <span className="text-xs text-slate-400">추정 신뢰도 {analysis.confidence <= 1 ? Math.round(analysis.confidence * 100) : Math.round(analysis.confidence)}%</span>
           </div>
           <h2 className="text-base font-bold text-white tracking-tight">{analysis.title}</h2>
         </div>
