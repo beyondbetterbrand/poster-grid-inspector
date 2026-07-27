@@ -8,6 +8,7 @@ import { HelpModal } from './components/HelpModal';
 import { BrockmannGuideModal } from './components/BrockmannGuideModal';
 import { SystemManualModal } from './components/SystemManualModal';
 import { HistoryModal } from './components/HistoryModal';
+import { saveLocalHistoryRecord } from './utils/historyManager';
 import { prepareImageForVisionApi, analyzePosterImageLocally } from './utils/imageUtils';
 import { generateCandidateGrids, optimizeGridToElements } from './utils/gridOptimizer';
 import {
@@ -186,6 +187,17 @@ export default function App() {
         setKeylines(d.keylines || []);
         setDetectedElements(rawElements);
         setIsAiAnalyzed(true);
+
+        // Save to browser localStorage persistently
+        saveLocalHistoryRecord({
+          id: `hist_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          title: newAnalysis.title,
+          systemNameKo: newAnalysis.systemNameKo,
+          confidence: newAnalysis.confidence,
+          createdAt: new Date().toISOString(),
+          imageBase64: src,
+          analysisData: newAnalysis,
+        });
       } else {
         setAnalysisError(json.error || 'AI 비전 분석 응답에 실패했습니다.');
         await applyFallbackGrid(src);
@@ -295,6 +307,17 @@ export default function App() {
     setKeylines(fallbackAnalysis.keylines);
     setDetectedElements(localRes.detectedElements);
     setIsAiAnalyzed(false);
+
+    // Save fallback grid result to browser localStorage persistently
+    saveLocalHistoryRecord({
+      id: `hist_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      title: fallbackAnalysis.title,
+      systemNameKo: fallbackAnalysis.systemNameKo,
+      confidence: fallbackAnalysis.confidence,
+      createdAt: new Date().toISOString(),
+      imageBase64: src,
+      analysisData: fallbackAnalysis,
+    });
   };
 
   const handleResetGridParams = () => {

@@ -14,15 +14,22 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { PosterAnalysisResult } from '../types';
+import {
+  getLocalHistory,
+  deleteLocalHistoryRecord,
+  clearAllLocalHistory,
+  HistoryRecord,
+} from '../utils/historyManager';
 
 export interface HistoryItem {
   id: string;
-  cacheKey: string;
+  cacheKey?: string;
   title: string;
   systemNameKo: string;
   confidence: number;
   createdAt: string;
   imageBase64: string;
+  analysisData?: PosterAnalysisResult;
 }
 
 interface HistoryModalProps {
@@ -39,20 +46,30 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
   const [historyList, setHistoryList] = useState<HistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
 
   const fetchHistory = async () => {
     setIsLoading(true);
+    // 1. Load from browser localStorage first
+    const localItems = getLocalHistory();
+    let combined: HistoryItem[] = [...localItems];
+
     try {
+      // 2. Fetch from server API if available
       const res = await fetch('/api/history');
       const json = await res.json();
       if (json.success && Array.isArray(json.history)) {
-        setHistoryList(json.history);
+        // Merge without duplicating IDs or cacheKeys
+        json.history.forEach((srvItem: HistoryItem) => {
+          if (!combined.some((c) => c.id === srvItem.id || (srvItem.cacheKey && c.cacheKey === srvItem.cacheKey))) {
+            combined.push(srvItem);
+          }
+        });
       }
     } catch (err) {
-      console.error('Failed to fetch history:', err);
+      console.warn('Server history fetch notice:', err);
     } finally {
+      setHistoryList(combined);
       setIsLoading(false);
     }
   };
@@ -66,6 +83,23 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
   const handleSelect = async (item: HistoryItem) => {
     setLoadingItemId(item.id);
     try {
+      // If item has analysisData in local record, use it immediately!
+      if (item.analysisData) {
+        onSelectHistoryItem(item.imageBase64, item.analysisData);
+        onClose();
+        return;
+      }
+
+      // Check if it's in localStorage
+      const localRecords = getLocalHistory();
+      const matched = localRecords.find((r) => r.id === item.id || (item.cacheKey && r.cacheKey === item.cacheKey));
+      if (matched && matched.analysisData) {
+        onSelectHistoryItem(matched.imageBase64, matched.analysisData);
+        onClose();
+        return;
+      }
+
+      // Fallback: Fetch from server API
       const res = await fetch(`/api/history/${item.id}`);
       const json = await res.json();
       if (json.success && json.item) {
@@ -82,27 +116,25 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     if (!window.confirm('이 포스터 분석 히스토리를 삭제하시겠습니까?')) return;
+    deleteLocalHistoryRecord(id);
+    setHistoryList((prev) => prev.filter((h) => h.id !== id));
+
     try {
-      const res = await fetch(`/api/history/${id}`, { method: 'DELETE' });
-      const json = await res.json();
-      if (json.success) {
-        setHistoryList((prev) => prev.filter((h) => h.id !== id));
-      }
+      await fetch(`/api/history/${id}`, { method: 'DELETE' });
     } catch (err) {
-      console.error('Failed to delete item:', err);
+      console.warn('Server item delete notice:', err);
     }
   };
 
   const handleClearAll = async () => {
     if (!window.confirm('모든 분석 히스토리 기록을 삭제하시겠습니까?')) return;
+    clearAllLocalHistory();
+    setHistoryList([]);
+
     try {
-      const res = await fetch('/api/history', { method: 'DELETE' });
-      const json = await res.json();
-      if (json.success) {
-        setHistoryList([]);
-      }
+      await fetch('/api/history', { method: 'DELETE' });
     } catch (err) {
-      console.error('Failed to clear history:', err);
+      console.warn('Server history clear notice:', err);
     }
   };
 
