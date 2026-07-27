@@ -205,17 +205,22 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
               </button>
             </div>
           ) : (
-            <div className="bg-[#12221A] border border-[#10B981]/30 px-3 py-1.5 flex items-center justify-between text-[11px] text-[#10B981] font-mono">
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981]" />
-                <span>AI VISION_OCR_MAPPED</span>
-              </span>
-              <button
-                onClick={onReanalyzeAi}
-                className="text-[#8C93A6] hover:text-white underline text-[10px] ml-2 shrink-0"
-              >
-                재스캔
-              </button>
+            <div className="bg-[#12221A] border border-[#10B981]/40 p-2.5 space-y-1 text-xs font-mono">
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-1.5 text-[#10B981] font-bold text-[11px]">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981]" />
+                  <span>AI_VISION_OCR_MAPPED ({analysis.detectedElements.length}개 요소를 AI가 읽음)</span>
+                </span>
+                <button
+                  onClick={onReanalyzeAi}
+                  className="text-[#8C93A6] hover:text-white underline text-[10px] shrink-0"
+                >
+                  재스캔
+                </button>
+              </div>
+              <p className="text-[10px] text-[#A2A9B8] font-sans leading-normal">
+                AI가 포스터 내부 텍스트 위치를 정밀하게 인지하여, 외곽 마진(L:{gridParams.marginLeft}% / T:{gridParams.marginTop}%)과 {gridParams.columns}컬럼 축에 그리드를 자동 맞춤했습니다.
+              </p>
             </div>
           )}
         </div>

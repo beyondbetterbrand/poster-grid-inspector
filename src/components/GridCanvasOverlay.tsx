@@ -480,45 +480,85 @@ export const GridCanvasOverlay: React.FC<GridCanvasOverlayProps> = ({
                     const bh = (el.height / 100) * h;
                     const isHovered = hoveredElementId === el.id;
 
+                    const labelText = `[AI OCR] ${el.label}`;
+                    const badgeWidth = Math.min(Math.max(bw, 140), 280);
+
                     return (
                       <g
                         key={el.id}
                         onMouseEnter={() => onHoverElement(el.id)}
                         onMouseLeave={() => onHoverElement(null)}
-                        className="cursor-pointer"
+                        className="cursor-pointer transition-opacity"
                       >
+                        {/* Fill & Bounding Box Border */}
                         <rect
                           x={bx}
                           y={by}
                           width={bw}
                           height={bh}
                           fill={isHovered ? '#FF3B30' : '#FF3B30'}
-                          fillOpacity={isHovered ? 0.45 : 0.14}
+                          fillOpacity={isHovered ? 0.35 : 0.12}
                           stroke="#FF3B30"
                           strokeWidth={isHovered ? 3.5 : 1.5}
                           strokeDasharray={isHovered ? 'none' : '4 2'}
                         />
+
+                        {/* Top Label Tag Badge */}
                         <rect
                           x={bx}
-                          y={Math.max(0, by - 22)}
-                          width={Math.min(bw, 220)}
-                          height={22}
-                          fill="#FF3B30"
+                          y={Math.max(0, by - 24)}
+                          width={badgeWidth}
+                          height={24}
+                          fill={isHovered ? '#000000' : '#FF3B30'}
+                          stroke="#FF3B30"
+                          strokeWidth={isHovered ? 2 : 1}
                         />
                         <text
-                          x={bx + 6}
-                          y={Math.max(14, by - 6)}
+                          x={bx + 8}
+                          y={Math.max(16, by - 7)}
                           fontFamily="JetBrains Mono, monospace"
-                          fontSize={12}
+                          fontSize={11}
                           fontWeight="bold"
-                          fill="#FFFFFF"
+                          fill={isHovered ? '#FF3B30' : '#FFFFFF'}
                         >
-                          {el.label}
+                          {labelText.length > 28 ? labelText.slice(0, 26) + '…' : labelText}
                         </text>
+
+                        {/* Hover Details Floating Tag */}
+                        {isHovered && (
+                          <g>
+                            <rect
+                              x={bx}
+                              y={by + bh + 4}
+                              width={Math.max(bw, 200)}
+                              height={28}
+                              fill="#0F1015"
+                              stroke="#FF3B30"
+                              strokeWidth={1.5}
+                            />
+                            <text
+                              x={bx + 8}
+                              y={by + bh + 22}
+                              fontFamily="JetBrains Mono, monospace"
+                              fontSize={10}
+                              fill="#C2C8D6"
+                            >
+                              POS: {Math.round(el.x)}%, {Math.round(el.y)}% | SIZE: {Math.round(el.width)}×{Math.round(el.height)}%
+                            </text>
+                          </g>
+                        )}
                       </g>
                     );
                   })}
               </svg>
+
+              {/* Bottom Canvas Overlay AI Vision Status Badge */}
+              {detectedElements.length > 0 && !isAnalyzing && (
+                <div className="absolute bottom-3 left-3 bg-[#0F1015]/90 border border-[#232733] px-3 py-1.5 text-[10px] font-mono text-[#C2C8D6] flex items-center gap-2 backdrop-blur-sm shadow-lg pointer-events-none z-20">
+                  <span className="w-2 h-2 rounded-full bg-[#FF3B30] animate-pulse shrink-0" />
+                  <span>AI_VISION_OCR: <strong className="text-white">{detectedElements.length}개 요소</strong> 감지 및 정렬축 수합 완료</span>
+                </div>
+              )}
 
               {/* AI Vision Analysis Scanning Overlay */}
               {isAnalyzing && (
