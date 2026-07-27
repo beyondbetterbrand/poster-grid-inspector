@@ -419,6 +419,41 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
                 );
               })}
             </div>
+
+            {/* Keylines List Section */}
+            {analysis.keylines && analysis.keylines.length > 0 && (
+              <div className="pt-3 border-t border-[#232733] space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-white uppercase font-mono flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#00F0FF]" />
+                    <span>KEYLINES (포스터 주요 정렬축)</span>
+                  </span>
+                  <span className="text-[10px] text-[#00F0FF] bg-[#00F0FF]/10 border border-[#00F0FF]/30 px-1.5 py-0.5 rounded font-mono">
+                    청록색 키라인
+                  </span>
+                </div>
+                <p className="text-[11px] text-[#8C93A6] font-sans leading-snug">
+                  일반 격자 외에 포스터 내 타이틀/비주얼 분할선 등 <strong>시각적 기준점</strong>이 되는 주요 정렬 축입니다.
+                </p>
+
+                <div className="space-y-1.5">
+                  {analysis.keylines.map((kl) => (
+                    <div
+                      key={kl.id}
+                      className="p-2.5 bg-[#101720] border border-[#00F0FF]/30 rounded text-xs flex items-center justify-between font-mono"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="w-1.5 h-4 bg-[#00F0FF] rounded-full shrink-0" />
+                        <span className="text-white font-bold truncate">{kl.label || '주요 정렬 축'}</span>
+                      </div>
+                      <span className="text-[#00F0FF] text-[11px] bg-[#00F0FF]/10 px-2 py-0.5 rounded shrink-0">
+                        {kl.type === 'vertical' ? '세로' : '가로'} {Math.round(kl.position)}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

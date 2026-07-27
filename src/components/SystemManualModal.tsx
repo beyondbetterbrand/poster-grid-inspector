@@ -183,7 +183,23 @@ export const SystemManualModal: React.FC<SystemManualModalProps> = ({ isOpen, on
                 </p>
               </div>
 
-              {/* Item 3: 신뢰도 */}
+              {/* Item 3: Keylines */}
+              <div className="p-3.5 bg-[#141721] border border-[#232733] rounded-lg space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-white text-sm flex items-center gap-1.5 font-mono">
+                    <span className="w-3 h-3 rounded-full bg-[#00F0FF]" />
+                    키라인 (Keylines / 주요 구조 정렬축)
+                  </span>
+                  <span className="text-[10px] bg-[#00F0FF]/10 text-[#00F0FF] border border-[#00F0FF]/30 px-2 py-0.5 rounded font-mono">
+                    청록색 가이드선
+                  </span>
+                </div>
+                <p className="text-[#A0A7BA] leading-relaxed">
+                  포스터 전반을 가르는 일반 모듈 격자(컬럼/행) 외에, <strong>타이틀 헤드라인 베이스라인, 메인 비주얼 분할선, 하단 크레딧 시작선 등 '시선과 구도의 중심이 되는 핵심 수평/수직 기준선'</strong>입니다. AI가 화면 속 주요 텍스트 및 이미지 경계선 중 가장 지배적인 축을 인지하여 청록색(#00F0FF)선으로 표시합니다.
+                </p>
+              </div>
+
+              {/* Item 4: 신뢰도 */}
               <div className="p-3.5 bg-[#141721] border border-[#232733] rounded-lg space-y-1.5">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-white text-sm flex items-center gap-1.5 font-mono">

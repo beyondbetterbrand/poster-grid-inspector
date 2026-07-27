@@ -466,9 +466,10 @@ export const GridCanvasOverlay: React.FC<GridCanvasOverlayProps> = ({
                   </g>
                 )}
 
-                {/* 8. Keylines */}
+                {/* 8. Keylines (주요 정렬 축 기준선) */}
                 {showKeylines &&
-                  keylines.map((kl) => {
+                  keylines.map((kl, idx) => {
+                    const labelText = kl.label || `주요 정렬 축 ${idx + 1}`;
                     if (kl.type === 'vertical') {
                       const posX = (kl.position / 100) * w;
                       return (
@@ -480,7 +481,28 @@ export const GridCanvasOverlay: React.FC<GridCanvasOverlayProps> = ({
                             y2={h}
                             stroke="#00F0FF"
                             strokeWidth={2.5}
+                            strokeDasharray="6 3"
                           />
+                          {/* Keyline Vertical Label Tag */}
+                          <rect
+                            x={Math.min(w - 180, posX + 4)}
+                            y={12 + idx * 22}
+                            width={160}
+                            height={20}
+                            fill="#0A0B0E"
+                            stroke="#00F0FF"
+                            strokeWidth={1.5}
+                          />
+                          <text
+                            x={Math.min(w - 174, posX + 10)}
+                            y={26 + idx * 22}
+                            fontFamily="JetBrains Mono, monospace"
+                            fontSize={11}
+                            fontWeight="700"
+                            fill="#00F0FF"
+                          >
+                            [KEYLINE] {labelText.length > 14 ? labelText.slice(0, 13) + '…' : labelText}
+                          </text>
                         </g>
                       );
                     } else {
@@ -494,7 +516,28 @@ export const GridCanvasOverlay: React.FC<GridCanvasOverlayProps> = ({
                             y2={posY}
                             stroke="#00F0FF"
                             strokeWidth={2.5}
+                            strokeDasharray="6 3"
                           />
+                          {/* Keyline Horizontal Label Tag */}
+                          <rect
+                            x={12}
+                            y={Math.max(4, posY - 22)}
+                            width={180}
+                            height={20}
+                            fill="#0A0B0E"
+                            stroke="#00F0FF"
+                            strokeWidth={1.5}
+                          />
+                          <text
+                            x={18}
+                            y={Math.max(18, posY - 8)}
+                            fontFamily="JetBrains Mono, monospace"
+                            fontSize={11}
+                            fontWeight="700"
+                            fill="#00F0FF"
+                          >
+                            [KEYLINE] {labelText.length > 16 ? labelText.slice(0, 15) + '…' : labelText}
+                          </text>
                         </g>
                       );
                     }
