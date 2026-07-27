@@ -116,7 +116,7 @@ CRITICAL INSTRUCTIONS:
 Respond ONLY with valid JSON conforming to the schema.`;
 
       const executeGenerateContent = async () => {
-        const modelsToTry = ["gemini-3.6-flash", "gemini-flash-latest"];
+        const modelsToTry = ["gemini-3.6-flash", "gemini-2.5-flash", "gemini-flash-latest"];
         let lastErr: any = null;
 
         for (const modelName of modelsToTry) {
@@ -278,7 +278,8 @@ Respond ONLY with valid JSON conforming to the schema.`;
       if (errMsg.includes("RESOURCE_EXHAUSTED") || errMsg.includes("429") || errMsg.includes("quota")) {
         return res.status(429).json({
           success: false,
-          error: "Gemini AI 분석 호출 한도(Rate Limit)에 도달했습니다. 약 15초 후 [다시 분석] 버튼을 눌러주세요.",
+          isRateLimit: true,
+          error: "Gemini API 요청 한도(Quota Exceeded)에 도달했습니다. 1분 후 다시 시도하시거나, 이미 분석했던 포스터는 [분석 히스토리]에서 즉시 확인하실 수 있습니다.",
         });
       }
       return res.status(500).json({
