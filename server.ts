@@ -113,6 +113,10 @@ CRITICAL INSTRUCTIONS:
    - Provide systemNameKo in clear Korean (e.g., "스위스 모듈러 12컬럼 시스템").
    - Suggest 2-3 candidate grid hypotheses with fitScore (0-100%) and Korean rationale.
 
+5. Type Hierarchy Rating (타이포 위계 평가):
+   - Provide a qualitative Korean grade evaluation for typeHierarchyRating (e.g. "S등급 (완벽한 정보 위계)", "A등급 (우수한 정보 위계)", "B등급 (양호한 정보 위계)").
+   - NEVER output numerical scores or fraction formats like "7/10", "8/10", "7 / 10". MUST be a letter grade + Korean descriptive tag.
+
 Respond ONLY with valid JSON conforming to the schema.`;
 
       const executeGenerateContent = async () => {

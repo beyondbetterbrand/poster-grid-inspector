@@ -10,7 +10,7 @@ import { BrockmannGuideModal } from './components/BrockmannGuideModal';
 import { SystemManualModal } from './components/SystemManualModal';
 import { HistoryModal } from './components/HistoryModal';
 import { saveLocalHistoryRecord } from './utils/historyManager';
-import { prepareImageForVisionApi, analyzePosterImageLocally } from './utils/imageUtils';
+import { prepareImageForVisionApi, analyzePosterImageLocally, formatTypeHierarchyRating } from './utils/imageUtils';
 import { generateCandidateGrids, optimizeGridToElements } from './utils/gridOptimizer';
 import {
   GridParams,
@@ -172,7 +172,7 @@ export default function App() {
             '주요 타이포그래피와 이미지 박스의 좌우 정렬축 수합',
             '일관된 여백 비율 및 모듈 구조',
           ],
-          typeHierarchyRating: d.typeHierarchyRating || 'A (균형적인 정보 위계)',
+          typeHierarchyRating: formatTypeHierarchyRating(d.typeHierarchyRating || 'A등급 (균형적인 정보 위계)'),
           whitespaceRatio: d.whitespaceRatio || '35%',
           colorPalette: d.colorPalette || ['#0F1015', '#FF3B30', '#FFFFFF'],
         };

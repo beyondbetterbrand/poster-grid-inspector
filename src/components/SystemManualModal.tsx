@@ -215,19 +215,19 @@ export const SystemManualModal: React.FC<SystemManualModalProps> = ({ isOpen, on
                 </p>
               </div>
 
-              {/* Item 4: 스위스 디자인 평점 */}
+              {/* Item 4: 타이포 위계 평가 & 스위스 타이포그래피 원칙 */}
               <div className="p-3.5 bg-[#141721] border border-[#232733] rounded-lg space-y-1.5">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-white text-sm flex items-center gap-1.5 font-mono">
                     <Award className="w-4 h-4 text-[#F59E0B]" />
-                    스위스 디자인 평점 (Swiss Rating / 10점 만점)
+                    타이포 위계 평가 &amp; 스위스 타이포그래피 원칙
                   </span>
                   <span className="text-[10px] bg-[#F59E0B]/10 text-[#FBBF24] border border-[#F59E0B]/30 px-2 py-0.5 rounded font-mono">
-                    스타일 준수도
+                    위계 등급 &amp; 원칙 준수
                   </span>
                 </div>
                 <p className="text-[#A0A7BA] leading-relaxed">
-                  포스터가 스위스 국제 타이포그래피 스타일 지침(명확한 타이포 그래피 위계, 여백의 조화, 모듈 축 정렬, 산세리프 및 좌측 정렬 등)을 얼마나 충실히 따르고 있는지 나타내는 디자인 품질 평점입니다.
+                  포스터의 타이포그래피 위계 수준(S~C등급)과 스위스 국제 타이포그래피 스타일 지침(명확한 타이포그래피 위계, 여백의 조화, 모듈 축 정렬, 산세리프 및 좌측 정렬 등)을 얼마나 충실히 따르고 있는지 도출한 분석 결과입니다.
                 </p>
               </div>
 

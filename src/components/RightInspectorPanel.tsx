@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AnalysisResult, GridParams } from '../types';
 import { optimizeGridToElements } from '../utils/gridOptimizer';
+import { formatTypeHierarchyRating } from '../utils/imageUtils';
 import {
   Layers,
   Palette,
@@ -184,11 +185,11 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
           {analysis.typeHierarchyRating && (
             <div
               className="flex items-center gap-1.5 bg-[#161821] px-2.5 py-1 border border-[#232733] max-w-full"
-              title={analysis.typeHierarchyRating}
+              title={formatTypeHierarchyRating(analysis.typeHierarchyRating)}
             >
               <Award className="w-4 h-4 text-[#F59E0B] shrink-0" />
               <span className="text-xs font-mono font-bold text-[#F59E0B] break-words">
-                {analysis.typeHierarchyRating}
+                {formatTypeHierarchyRating(analysis.typeHierarchyRating)}
               </span>
             </div>
           )}
@@ -692,7 +693,7 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
               <div className="bg-[#12141C] p-3 border border-[#232733] space-y-1">
                 <span className="text-xs text-[#8C93A6] block font-mono">타이포 위계 평가</span>
                 <span className="font-bold text-[#F59E0B] block text-sm truncate">
-                  {analysis.typeHierarchyRating || '우수 (A등급)'}
+                  {formatTypeHierarchyRating(analysis.typeHierarchyRating)}
                 </span>
               </div>
               <div className="bg-[#12141C] p-3 border border-[#232733] space-y-1">

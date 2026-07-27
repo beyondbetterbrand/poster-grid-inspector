@@ -1,5 +1,6 @@
 import React from 'react';
 import { AnalysisResult } from '../types';
+import { formatTypeHierarchyRating } from '../utils/imageUtils';
 import {
   Sparkles,
   CheckCircle2,
@@ -66,7 +67,7 @@ export const AnalysisReport: React.FC<AnalysisReportProps> = ({
           <div>
             <span className="text-[10px] text-slate-400 block leading-tight">타이포 위계 평가</span>
             <span className="text-xs font-extrabold text-amber-300">
-              {analysis.typeHierarchyRating}
+              {formatTypeHierarchyRating(analysis.typeHierarchyRating)}
             </span>
           </div>
         </div>

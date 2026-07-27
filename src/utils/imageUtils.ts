@@ -248,3 +248,30 @@ function getDefaultLocalResult(): LocalAnalysisResult {
   };
 }
 
+export function formatTypeHierarchyRating(rating?: string): string {
+  if (!rating) return 'A등급 (우수한 정보 위계)';
+  
+  const str = rating.trim();
+  
+  // Matches "7 / 10", "7/10", "8/10", "9.5/10", etc.
+  const fractionMatch = str.match(/^(\d+(?:\.\d+)?)\s*\/\s*10$/);
+  if (fractionMatch) {
+    const num = parseFloat(fractionMatch[1]);
+    if (num >= 9) return 'S등급 (완벽한 정보 위계)';
+    if (num >= 7) return 'A등급 (우수한 정보 위계)';
+    if (num >= 5) return 'B등급 (양호한 정보 위계)';
+    return 'C등급 (위계 보완 필요)';
+  }
+  
+  // Matches pure numbers like "7", "8", "9"
+  if (/^\d+(?:\.\d+)?$/.test(str)) {
+    const num = parseFloat(str);
+    if (num >= 9) return 'S등급 (완벽한 정보 위계)';
+    if (num >= 7) return 'A등급 (우수한 정보 위계)';
+    if (num >= 5) return 'B등급 (양호한 정보 위계)';
+    return 'C등급 (위계 보완 필요)';
+  }
+
+  return str;
+}
+
