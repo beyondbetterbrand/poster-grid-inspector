@@ -1,9 +1,10 @@
 import React from 'react';
-import { Grid, FileDown, Sparkles, RefreshCw, Upload, BookOpen } from 'lucide-react';
+import { Grid, FileDown, Sparkles, RefreshCw, Upload, BookOpen, History } from 'lucide-react';
 
 interface HeaderProps {
   onOpenExportModal: () => void;
   onOpenManualModal?: () => void;
+  onOpenHistoryModal?: () => void;
   onReanalyzeAi?: () => void;
   onUploadClick?: () => void;
   hasImage: boolean;
@@ -13,6 +14,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   onOpenExportModal,
   onOpenManualModal,
+  onOpenHistoryModal,
   onReanalyzeAi,
   onUploadClick,
   hasImage,
@@ -35,6 +37,18 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2 sm:gap-2.5">
+          {onOpenHistoryModal && (
+            <button
+              onClick={onOpenHistoryModal}
+              className="flex items-center gap-1.5 text-xs sm:text-sm font-mono font-bold px-3.5 py-2 bg-[#1A1D26] hover:bg-[#252A38] text-[#10B981] border border-[#10B981]/30 transition-all active:scale-95 shadow-sm"
+              title="이전에 분석했던 포스터 히스토리 목록을 확인하고 불러옵니다"
+            >
+              <History className="w-4 h-4 text-[#10B981]" />
+              <span className="hidden md:inline">분석 히스토리</span>
+              <span className="md:hidden">히스토리</span>
+            </button>
+          )}
+
           {onOpenManualModal && (
             <button
               onClick={onOpenManualModal}

@@ -28,6 +28,7 @@ interface RightInspectorPanelProps {
   onChangeParams: (newParams: GridParams) => void;
   onResetGridParams?: () => void;
   onOpenManualModal?: () => void;
+  onOpenHistoryModal?: () => void;
 }
 
 const COLOR_PRESETS = [
@@ -130,6 +131,7 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
   onChangeParams,
   onResetGridParams,
   onOpenManualModal,
+  onOpenHistoryModal,
 }) => {
   const [activeTab, setActiveTab] = useState<'candidates' | 'elements' | 'options' | 'report'>('candidates');
 
@@ -690,6 +692,26 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* History Callout Card */}
+            {onOpenHistoryModal && (
+              <div className="mt-3 p-3.5 bg-[#141B18] border border-[#10B981]/30 rounded-lg flex items-center justify-between gap-3 text-xs">
+                <div className="space-y-0.5">
+                  <span className="font-mono font-bold text-[#10B981] block text-xs">
+                    ⚡ 분석 히스토리 불러오기
+                  </span>
+                  <span className="text-[11px] text-[#A0A7BA] block">
+                    이전에 분석한 포스터 기록을 빠르게 다시 열어볼 수 있습니다.
+                  </span>
+                </div>
+                <button
+                  onClick={onOpenHistoryModal}
+                  className="shrink-0 bg-[#10B981]/15 hover:bg-[#10B981]/25 text-[#10B981] border border-[#10B981]/40 font-mono font-bold px-3 py-1.5 text-xs transition-all active:scale-95"
+                >
+                  히스토리 열기
+                </button>
               </div>
             )}
 

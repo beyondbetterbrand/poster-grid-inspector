@@ -7,6 +7,7 @@ import { ExportModal } from './components/ExportModal';
 import { HelpModal } from './components/HelpModal';
 import { BrockmannGuideModal } from './components/BrockmannGuideModal';
 import { SystemManualModal } from './components/SystemManualModal';
+import { HistoryModal } from './components/HistoryModal';
 import { prepareImageForVisionApi, analyzePosterImageLocally } from './utils/imageUtils';
 import { generateCandidateGrids, optimizeGridToElements } from './utils/gridOptimizer';
 import {
@@ -55,9 +56,28 @@ export default function App() {
   const [isHelpModalOpen, setIsHelpModalOpen] = useState<boolean>(false);
   const [isBrockmannModalOpen, setIsBrockmannModalOpen] = useState<boolean>(false);
   const [isManualModalOpen, setIsManualModalOpen] = useState<boolean>(false);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState<boolean>(false);
 
   const [isAiAnalyzed, setIsAiAnalyzed] = useState<boolean>(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+
+  const handleSelectHistoryItem = (imageBase64: string, analysisData: PosterAnalysisResult) => {
+    setImageSrc(imageBase64);
+    setAnalysisResult(analysisData);
+    setGridParams(analysisData.gridParams);
+    setDetectedElements(analysisData.detectedElements || []);
+    setKeylines(analysisData.keylines || []);
+
+    const candidates = generateCandidateGrids(
+      analysisData.gridParams,
+      analysisData.detectedElements || [],
+      analysisData.systemType,
+      analysisData.systemNameKo
+    );
+    setCandidateGrids(candidates);
+    setSelectedCandidateId(candidates[0]?.id || 'custom_auto');
+    setIsAiAnalyzed(true);
+  };
 
   const handleUploadNewImageTrigger = () => {
     const input = document.createElement('input');
@@ -314,6 +334,7 @@ export default function App() {
       <Header
         onOpenExportModal={() => setIsExportModalOpen(true)}
         onOpenManualModal={() => setIsManualModalOpen(true)}
+        onOpenHistoryModal={() => setIsHistoryModalOpen(true)}
         onReanalyzeAi={() => runAiVisionAnalysis()}
         onUploadClick={handleUploadNewImageTrigger}
         hasImage={!!imageSrc}
@@ -360,6 +381,7 @@ export default function App() {
                 onChangeParams={setGridParams}
                 onResetGridParams={handleResetGridParams}
                 onOpenManualModal={() => setIsManualModalOpen(true)}
+                onOpenHistoryModal={() => setIsHistoryModalOpen(true)}
               />
             </div>
           </div>
@@ -389,6 +411,13 @@ export default function App() {
       <SystemManualModal
         isOpen={isManualModalOpen}
         onClose={() => setIsManualModalOpen(false)}
+      />
+
+      {/* Poster Analysis History & Cache Reuse Modal */}
+      <HistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
+        onSelectHistoryItem={handleSelectHistoryItem}
       />
 
       {/* Footer */}

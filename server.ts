@@ -4,8 +4,22 @@ import path from "path";
 import crypto from "crypto";
 import { createServer as createViteServer } from "vite";
 
-// In-memory cache for poster grid analysis results to ensure consistent output for identical images
+// In-memory cache and history store for poster grid analysis
 const analysisCache = new Map<string, any>();
+
+interface AnalysisHistoryRecord {
+  id: string;
+  cacheKey: string;
+  title: string;
+  systemNameKo: string;
+  confidence: number;
+  fitScore?: number;
+  createdAt: string;
+  imageBase64: string;
+  analysisData: any;
+}
+
+const analysisHistoryStore: AnalysisHistoryRecord[] = [];
 
 async function startServer() {
   const app = express();
@@ -41,8 +55,32 @@ async function startServer() {
 
       // Calculate simple hash key for caching identical images
       const cacheKey = crypto.createHash("sha256").update(cleanBase64).digest("hex");
+      
       if (analysisCache.has(cacheKey)) {
-        return res.json({ success: true, data: analysisCache.get(cacheKey) });
+        const cachedData = analysisCache.get(cacheKey);
+        // Find existing history record or create/update it
+        let existingRecord = analysisHistoryStore.find((item) => item.cacheKey === cacheKey);
+        if (!existingRecord) {
+          existingRecord = {
+            id: `hist_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+            cacheKey,
+            title: cachedData.title || "포스터 레이아웃 분석",
+            systemNameKo: cachedData.systemNameKo || "그리드 시스템",
+            confidence: cachedData.confidence || 90,
+            createdAt: new Date().toISOString(),
+            imageBase64: imageBase64,
+            analysisData: cachedData,
+          };
+          analysisHistoryStore.unshift(existingRecord);
+        } else {
+          // Bring to top
+          const index = analysisHistoryStore.indexOf(existingRecord);
+          if (index > 0) {
+            analysisHistoryStore.splice(index, 1);
+            analysisHistoryStore.unshift(existingRecord);
+          }
+        }
+        return res.json({ success: true, data: cachedData, isCached: true, historyId: existingRecord.id });
       }
 
       // Extract detected mime type if present in data URI
@@ -216,7 +254,24 @@ Respond ONLY with valid JSON conforming to the schema.`;
       // Cache result for identical image base64
       analysisCache.set(cacheKey, parsedData);
 
-      return res.json({ success: true, data: parsedData });
+      const newHistoryRecord: AnalysisHistoryRecord = {
+        id: `hist_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        cacheKey,
+        title: parsedData.title || "포스터 레이아웃 분석",
+        systemNameKo: parsedData.systemNameKo || "그리드 시스템",
+        confidence: parsedData.confidence || 90,
+        createdAt: new Date().toISOString(),
+        imageBase64: imageBase64,
+        analysisData: parsedData,
+      };
+
+      // Keep max 50 items in memory history
+      analysisHistoryStore.unshift(newHistoryRecord);
+      if (analysisHistoryStore.length > 50) {
+        analysisHistoryStore.pop();
+      }
+
+      return res.json({ success: true, data: parsedData, isCached: false, historyId: newHistoryRecord.id });
     } catch (error: any) {
       console.error("Poster Grid Analysis error:", error);
       const errMsg = error?.message || "";
@@ -231,6 +286,46 @@ Respond ONLY with valid JSON conforming to the schema.`;
         error: errMsg || "포스터 분석 중 서버 오류가 발생했습니다.",
       });
     }
+  });
+
+  // REST API: Get All Analysis History List
+  app.get("/api/history", (req, res) => {
+    // Return history summary items without heavy payload
+    const list = analysisHistoryStore.map((item) => ({
+      id: item.id,
+      cacheKey: item.cacheKey,
+      title: item.title,
+      systemNameKo: item.systemNameKo,
+      confidence: item.confidence,
+      createdAt: item.createdAt,
+      imageBase64: item.imageBase64,
+    }));
+    return res.json({ success: true, count: list.length, history: list });
+  });
+
+  // REST API: Get Specific History Item Full Details
+  app.get("/api/history/:id", (req, res) => {
+    const item = analysisHistoryStore.find((h) => h.id === req.params.id);
+    if (!item) {
+      return res.status(404).json({ success: false, error: "History record not found" });
+    }
+    return res.json({ success: true, item });
+  });
+
+  // REST API: Delete Single History Item
+  app.delete("/api/history/:id", (req, res) => {
+    const index = analysisHistoryStore.findIndex((h) => h.id === req.params.id);
+    if (index !== -1) {
+      analysisHistoryStore.splice(index, 1);
+      return res.json({ success: true, message: "History item deleted" });
+    }
+    return res.status(404).json({ success: false, error: "Item not found" });
+  });
+
+  // REST API: Clear All History
+  app.delete("/api/history", (req, res) => {
+    analysisHistoryStore.length = 0;
+    return res.json({ success: true, message: "All history cleared" });
   });
 
   // Vite middleware for development vs static serve for production
