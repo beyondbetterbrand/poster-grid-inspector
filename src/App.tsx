@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangle, Zap, RefreshCw } from 'lucide-react';
+import { AlertTriangle, Zap, RefreshCw, Clock, Activity } from 'lucide-react';
 import { Header } from './components/Header';
 import { ImageUploader } from './components/ImageUploader';
 import { GridCanvasOverlay } from './components/GridCanvasOverlay';
@@ -9,6 +9,7 @@ import { HelpModal } from './components/HelpModal';
 import { BrockmannGuideModal } from './components/BrockmannGuideModal';
 import { SystemManualModal } from './components/SystemManualModal';
 import { HistoryModal } from './components/HistoryModal';
+import { ApiStatusModal } from './components/ApiStatusModal';
 import { saveLocalHistoryRecord } from './utils/historyManager';
 import { prepareImageForVisionApi, analyzePosterImageLocally, formatTypeHierarchyRating } from './utils/imageUtils';
 import { generateCandidateGrids, optimizeGridToElements } from './utils/gridOptimizer';
@@ -59,6 +60,7 @@ export default function App() {
   const [isBrockmannModalOpen, setIsBrockmannModalOpen] = useState<boolean>(false);
   const [isManualModalOpen, setIsManualModalOpen] = useState<boolean>(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState<boolean>(false);
+  const [isApiStatusModalOpen, setIsApiStatusModalOpen] = useState<boolean>(false);
 
   const [isAiAnalyzed, setIsAiAnalyzed] = useState<boolean>(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
@@ -409,6 +411,13 @@ export default function App() {
     }
   };
 
+  const handleRunLocalAnalysis = async () => {
+    setAnalysisError(null);
+    setIsAnalyzing(true);
+    await applyFallbackGrid(imageSrc);
+    setIsAnalyzing(false);
+  };
+
   return (
     <div className="min-h-screen bg-[#0A0B0E] bg-swiss-grid text-white font-mono antialiased flex flex-col selection:bg-[#FF3B30] selection:text-white">
       {/* Header Bar */}
@@ -416,6 +425,7 @@ export default function App() {
         onOpenExportModal={() => setIsExportModalOpen(true)}
         onOpenManualModal={() => setIsManualModalOpen(true)}
         onOpenHistoryModal={() => setIsHistoryModalOpen(true)}
+        onOpenApiStatusModal={() => setIsApiStatusModalOpen(true)}
         onReanalyzeAi={() => runAiVisionAnalysis()}
         onUploadClick={handleUploadNewImageTrigger}
         hasImage={!!imageSrc}
@@ -432,33 +442,43 @@ export default function App() {
                 <AlertTriangle className="w-4 h-4 animate-pulse" />
               </div>
               <div className="space-y-1">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-bold text-[#FF3B30] uppercase tracking-wider text-xs">
-                    ⚠️ API 요청 한도 초과 (RESOURCE_EXHAUSTED / 429)
+                    ⚠️ Gemini API 요청 한도 초과 안내 (429 Quota Exceeded)
                   </span>
                   <span className="text-[10px] bg-[#FF3B30]/20 text-[#FF3B30] border border-[#FF3B30]/30 px-1.5 py-0.5 rounded font-bold">
-                    약 1분 후 자동 리셋
+                    리셋 주기 안내
                   </span>
                 </div>
                 <p className="text-[#C2C8D6] leading-relaxed">
-                  Gemini API 사용량 한도(RPM)에 도달하였습니다. <strong>60초 후 자동으로 리셋</strong>되며, 오른쪽 패널에서 실시간 타이머와 재시도 버튼을 확인하실 수 있습니다.
+                  {analysisError}
                 </p>
+                <div className="text-[11px] text-[#A0A7BA] pt-0.5">
+                  💡 <strong className="text-white">분당 한도(RPM)</strong>는 약 1분 후 리셋되며, <strong className="text-white">일일 한도(RPD: 1,500회)</strong> 소진 시 <strong>매일 한국시간 오후 4시 (PST 자정)</strong>에 완충 초기화됩니다.
+                </div>
               </div>
             </div>
 
             <div className="flex items-center gap-2 shrink-0 w-full md:w-auto">
               <button
-                onClick={() => setIsHistoryModalOpen(true)}
-                className="flex-1 md:flex-none bg-[#10B981] hover:bg-[#0D9668] text-white font-bold px-3.5 py-2 text-xs uppercase transition-all flex items-center justify-center gap-1.5 shadow active:scale-95"
+                onClick={() => setIsApiStatusModalOpen(true)}
+                className="flex-1 md:flex-none bg-[#1C202B] hover:bg-[#282E3E] text-[#F59E0B] border border-[#F59E0B]/40 font-bold px-3.5 py-2 text-xs uppercase transition-all flex items-center justify-center gap-1.5 active:scale-95"
               >
-                <Zap className="w-3.5 h-3.5" />
+                <Activity className="w-3.5 h-3.5 text-[#F59E0B]" />
+                <span>API 상태 점검</span>
+              </button>
+              <button
+                onClick={() => setIsHistoryModalOpen(true)}
+                className="flex-1 md:flex-none bg-[#1C202B] hover:bg-[#282E3E] text-[#C2C8D6] border border-[#3A3F52] font-bold px-3.5 py-2 text-xs uppercase transition-all flex items-center justify-center gap-1.5 active:scale-95"
+              >
+                <Clock className="w-3.5 h-3.5 text-[#38BDF8]" />
                 <span>히스토리 열기</span>
               </button>
               <button
                 onClick={() => runAiVisionAnalysis()}
-                className="flex-1 md:flex-none bg-[#232733] hover:bg-[#2E3444] text-[#C2C8D6] border border-[#3A3F52] font-bold px-3.5 py-2 text-xs uppercase transition-all flex items-center justify-center gap-1.5 active:scale-95"
+                className="flex-1 md:flex-none bg-[#FF3B30] hover:bg-[#E02E24] text-white font-bold px-3.5 py-2 text-xs uppercase transition-all flex items-center justify-center gap-1.5 shadow active:scale-95"
               >
-                <RefreshCw className="w-3.5 h-3.5 text-[#FF3B30]" />
+                <RefreshCw className="w-3.5 h-3.5" />
                 <span>AI 스캔 재시도</span>
               </button>
             </div>
@@ -504,6 +524,7 @@ export default function App() {
                 onResetGridParams={handleResetGridParams}
                 onOpenManualModal={() => setIsManualModalOpen(true)}
                 onOpenHistoryModal={() => setIsHistoryModalOpen(true)}
+                onOpenApiStatusModal={() => setIsApiStatusModalOpen(true)}
               />
             </div>
           </div>
@@ -540,6 +561,13 @@ export default function App() {
         isOpen={isHistoryModalOpen}
         onClose={() => setIsHistoryModalOpen(false)}
         onSelectHistoryItem={handleSelectHistoryItem}
+      />
+
+      {/* Gemini API Health & Status Diagnostic Modal */}
+      <ApiStatusModal
+        isOpen={isApiStatusModalOpen}
+        onClose={() => setIsApiStatusModalOpen(false)}
+        onReanalyzeAi={() => runAiVisionAnalysis()}
       />
 
       {/* Footer */}

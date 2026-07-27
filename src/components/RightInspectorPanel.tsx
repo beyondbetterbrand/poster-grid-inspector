@@ -20,6 +20,7 @@ import {
   RefreshCw,
   Timer,
   HelpCircle,
+  Activity,
 } from 'lucide-react';
 
 interface RightInspectorPanelProps {
@@ -30,11 +31,13 @@ interface RightInspectorPanelProps {
   isAiAnalyzed?: boolean;
   analysisError?: string | null;
   onReanalyzeAi?: () => void;
+  onRunLocalAnalysis?: () => void;
   gridParams: GridParams;
   onChangeParams: (newParams: GridParams) => void;
   onResetGridParams?: () => void;
   onOpenManualModal?: () => void;
   onOpenHistoryModal?: () => void;
+  onOpenApiStatusModal?: () => void;
 }
 
 const COLOR_PRESETS = [
@@ -133,11 +136,13 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
   isAiAnalyzed = true,
   analysisError,
   onReanalyzeAi,
+  onRunLocalAnalysis,
   gridParams,
   onChangeParams,
   onResetGridParams,
   onOpenManualModal,
   onOpenHistoryModal,
+  onOpenApiStatusModal,
 }) => {
   const [activeTab, setActiveTab] = useState<'candidates' | 'elements' | 'options' | 'report'>('candidates');
 
@@ -154,7 +159,14 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
 
   if (!analysis) {
     if (analysisError) {
-      return <QuotaErrorView analysisError={analysisError} onOpenHistoryModal={onOpenHistoryModal} onReanalyzeAi={onReanalyzeAi} />;
+      return (
+        <QuotaErrorView
+          analysisError={analysisError}
+          onOpenHistoryModal={onOpenHistoryModal}
+          onOpenApiStatusModal={onOpenApiStatusModal}
+          onReanalyzeAi={onReanalyzeAi}
+        />
+      );
     }
 
     return (
@@ -789,8 +801,9 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
 const QuotaErrorView: React.FC<{
   analysisError: string;
   onOpenHistoryModal?: () => void;
+  onOpenApiStatusModal?: () => void;
   onReanalyzeAi?: () => void;
-}> = ({ analysisError, onOpenHistoryModal, onReanalyzeAi }) => {
+}> = ({ analysisError, onOpenHistoryModal, onOpenApiStatusModal, onReanalyzeAi }) => {
   const [secondsLeft, setSecondsLeft] = useState(60);
 
   useEffect(() => {
@@ -834,7 +847,7 @@ const QuotaErrorView: React.FC<{
               <span>한도 리셋 자동 타이머</span>
             </span>
             <span className="text-white font-bold text-sm bg-[#FF3B30]/20 px-2.5 py-0.5 rounded border border-[#FF3B30]/40">
-              {secondsLeft > 0 ? `${secondsLeft}초 남음` : '✅ 리셋 완료'}
+              {secondsLeft > 0 ? `${secondsLeft}초 남음` : '✅ 1분 차단 해제'}
             </span>
           </div>
 
@@ -853,31 +866,38 @@ const QuotaErrorView: React.FC<{
               </span>
             ) : (
               <span className="text-[#10B981] font-bold">
-                60초 대기 시간이 종료되었습니다! 재시도해보세요. (단, 하루 전체 사용량 소진 시에는 매일 오후 4시 리셋 전까지 재요청이 제한됩니다)
+                1분 대기 시간이 완료되었습니다! 아래 [AI 비전 재분석]을 눌러 재시도해보세요. (만약 여전히 429 에러가 뜨는 경우 '일일 전체 한도(RPD)' 소진 상태입니다)
               </span>
             )}
           </p>
         </div>
 
         {/* Reset Time Q&A Explanation */}
-        <div className="p-4 bg-[#141721] border border-[#232733] rounded-lg space-y-3 text-xs">
+        <div className="p-4 bg-[#141721] border border-[#232733] rounded-lg space-y-3 text-xs font-mono">
           <div className="flex items-center gap-1.5 text-white font-bold">
             <HelpCircle className="w-4 h-4 text-[#38BDF8]" />
-            <span>언제 다시 사용할 수 있나요?</span>
+            <span>Gemini API 한도 및 리셋 타임 안내</span>
+          </div>
+
+          <div className="p-2.5 bg-[#0D0F16] rounded border border-[#FF3B30]/30 text-[11px] text-[#E2E8F0] leading-relaxed">
+            <span className="text-[#FF3B30] font-bold block mb-1">⚠️ 왜 정확히 몇 초 남았는지 알려주지 않나요?</span>
+            <p className="text-[#A0A7BA]">
+              Google Gemini API는 429 오류 발생 시 <strong>서버에서 남은 초 단위 리셋 시각을 전달하지 않습니다</strong>. 앱 내 타이머는 <strong className="text-white">분당 한도(RPM) 해제 추정시간(60초)</strong>이며, 한도 종류에 따라 아래와 같이 리셋됩니다.
+            </p>
           </div>
 
           <div className="space-y-2 text-[11px] text-[#A0A7BA] leading-relaxed">
             <div className="p-2.5 bg-[#0D0F16] rounded border border-[#232733] space-y-1">
-              <span className="text-[#38BDF8] font-bold block">1. 분당 요청 제한 (RPM: Requests Per Minute)</span>
+              <span className="text-[#38BDF8] font-bold block">1. 분당 요청 제한 (RPM: Requests Per Minute) — 약 1분 후 리셋</span>
               <p>
-                단시간 내에 연속으로 스캔하거나 여러 사용자가 동시에 사용할 때 발생하며, <strong>약 1분(60초) 후</strong> 자동으로 리셋되어 즉시 다시 사용하실 수 있습니다.
+                단시간에 연속으로 요청할 때 발생하며 <strong>60~90초 대기 후</strong> 자동 해제됩니다.
               </p>
             </div>
 
             <div className="p-2.5 bg-[#0D0F16] rounded border border-[#232733] space-y-1">
-              <span className="text-[#F59E0B] font-bold block">2. 일일 전체 한도 제한 (RPD: Requests Per Day)</span>
+              <span className="text-[#F59E0B] font-bold block">2. 일일 전체 한도 제한 (RPD: Requests Per Day) — 매일 오후 4시 리셋</span>
               <p>
-                하루 전체 사용량이 소진된 경우 <strong>매일 한국시간 기준 오후 4시 (PST 기준 자정)</strong>에 일일 한도가 완전 초기화됩니다.
+                하루 무료 사용량(1,500회)이 모두 소진된 경우 60초가 지나도 안 되며, <strong>매일 한국시간 오후 4시 (미국 PST 자정)</strong>에 초기화됩니다.
               </p>
             </div>
           </div>
@@ -892,13 +912,23 @@ const QuotaErrorView: React.FC<{
             </span>
           </div>
           <p className="text-[11px] text-[#A0A7BA] leading-relaxed">
-            이전에 이미 한 번 분석했던 포스터는 API 요청을 보내지 않고 브라우저/서버에 저장된 분석 데이터로 즉시 열람하실 수 있습니다.
+            이전에 분석했던 포스터는 API 소모 없이 브라우저/서버 히스토리에서 즉시 열람하실 수 있습니다.
           </p>
         </div>
       </div>
 
       {/* Action buttons */}
       <div className="space-y-2 pt-4 border-t border-[#232733] mt-4">
+        {onOpenApiStatusModal && (
+          <button
+            onClick={onOpenApiStatusModal}
+            className="w-full bg-[#1C202B] hover:bg-[#282E3E] text-[#F59E0B] border border-[#F59E0B]/40 font-mono font-bold px-4 py-2.5 text-xs uppercase transition-all shadow flex items-center justify-center gap-2 active:scale-95"
+          >
+            <Activity className="w-4 h-4 text-[#F59E0B]" />
+            <span>실시간 API 상태 진단 및 테스트</span>
+          </button>
+        )}
+
         <button
           onClick={handleRetry}
           disabled={secondsLeft > 0}
@@ -910,16 +940,16 @@ const QuotaErrorView: React.FC<{
         >
           <RefreshCw className={`w-4 h-4 ${secondsLeft === 0 ? 'animate-spin-slow text-white' : ''}`} />
           <span>
-            {secondsLeft > 0 ? `AI 비전 재분석 (${secondsLeft}초 대기중)` : 'AI 비전 분석 재시도 (지금 가능)'}
+            {secondsLeft > 0 ? `AI 비전 재분석 (${secondsLeft}초 대기중)` : 'AI 비전 분석 재시도'}
           </span>
         </button>
 
         {onOpenHistoryModal && (
           <button
             onClick={onOpenHistoryModal}
-            className="w-full bg-[#10B981] hover:bg-[#0D9668] text-white font-mono font-bold px-4 py-2.5 text-xs uppercase transition-all shadow flex items-center justify-center gap-2 active:scale-95"
+            className="w-full bg-[#1C202B] hover:bg-[#282E3E] text-[#C2C8D6] border border-[#3A3F52] font-mono font-bold px-4 py-2.5 text-xs uppercase transition-all shadow flex items-center justify-center gap-2 active:scale-95"
           >
-            <Zap className="w-4 h-4" />
+            <Zap className="w-4 h-4 text-[#10B981]" />
             <span>히스토리 목록에서 불러오기</span>
           </button>
         )}

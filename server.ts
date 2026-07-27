@@ -92,8 +92,6 @@ async function startServer() {
         effectiveMimeType = mimeMatch[1];
       }
 
-      const ai = getAi();
-
       const prompt = `You are an expert graphic design AI and computer vision inspector specialized in poster design, Swiss typography, and grid layout analysis.
 
 Analyze this poster image from a Swiss Typography & Graphic Design perspective:
@@ -301,11 +299,31 @@ Respond ONLY with valid JSON conforming to the schema.`;
     } catch (error: any) {
       console.error("Poster Grid Analysis error:", error);
       const errMsg = error?.message || "";
-      if (errMsg.includes("RESOURCE_EXHAUSTED") || errMsg.includes("429") || errMsg.includes("quota")) {
+      const isQuotaErr = errMsg.includes("RESOURCE_EXHAUSTED") || errMsg.includes("429") || errMsg.includes("quota");
+
+      if (isQuotaErr) {
+        const isRpd = errMsg.toLowerCase().includes("perday") || errMsg.toLowerCase().includes("day");
+        const isRpm = errMsg.toLowerCase().includes("perminute") || errMsg.toLowerCase().includes("minute");
+
+        let quotaType: "RPM" | "RPD" | "GENERAL" = "GENERAL";
+        let detailMessage = "Gemini 무료 API 한도(RPM 또는 RPD)에 도달하였습니다.";
+
+        if (isRpd) {
+          quotaType = "RPD";
+          detailMessage = "일일 무료 요청 한도(RPD: 1,500회)가 모두 소진되었습니다. 60초 대기 방식으로는 해결되지 않으며, 매일 한국시간 오후 4시(PST 자정)에 초기화됩니다.";
+        } else if (isRpm) {
+          quotaType = "RPM";
+          detailMessage = "분당 요청 한도(RPM: 15회)에 도달하였습니다. 약 1분(60초) 내외 대기 후 리셋됩니다.";
+        } else {
+          detailMessage = "Gemini API 사용량 한도(429)에 도달하였습니다. 분당 한도(RPM)일 경우 1분 후 가능하며, 일일 한도(RPD) 소진 시 매일 오후 4시(PST 자정)에 초기화됩니다.";
+        }
+
         return res.status(429).json({
           success: false,
           isRateLimit: true,
-          error: "Gemini API 요청 한도(Quota Exceeded)에 도달했습니다. 1분 후 다시 시도하시거나, 이미 분석했던 포스터는 [분석 히스토리]에서 즉시 확인하실 수 있습니다.",
+          quotaType,
+          error: detailMessage,
+          rawError: errMsg,
         });
       }
       return res.status(500).json({
@@ -328,6 +346,77 @@ Respond ONLY with valid JSON conforming to the schema.`;
       imageBase64: item.imageBase64,
     }));
     return res.json({ success: true, count: list.length, history: list });
+  });
+
+  // REST API: Check Gemini API Health & Quota Status
+  app.get("/api/check-status", async (req, res) => {
+    const keys = getApiKeys();
+    if (!keys[0]) {
+      return res.status(200).json({
+        success: false,
+        status: "NO_KEY",
+        message: "GEMINI_API_KEY가 서버 환경변수에 설정되어 있지 않습니다.",
+        keyCount: 0,
+      });
+    }
+
+    const startTime = Date.now();
+    try {
+      const ai = new GoogleGenAI({ apiKey: keys[0] });
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: "Respond with 'OK'",
+      });
+
+      const latencyMs = Date.now() - startTime;
+      return res.json({
+        success: true,
+        status: "ONLINE",
+        latencyMs,
+        message: "Gemini API가 정상 작동 중입니다. 즉시 AI 스캔이 가능합니다.",
+        keyCount: keys.length,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error: any) {
+      const latencyMs = Date.now() - startTime;
+      const errMsg = error?.message || "";
+      const isQuota = errMsg.includes("RESOURCE_EXHAUSTED") || errMsg.includes("429") || errMsg.includes("quota");
+
+      if (isQuota) {
+        const isRpd = errMsg.toLowerCase().includes("perday") || errMsg.toLowerCase().includes("day");
+        const isRpm = errMsg.toLowerCase().includes("perminute") || errMsg.toLowerCase().includes("minute");
+
+        let quotaType = "GENERAL";
+        if (isRpd) quotaType = "RPD";
+        else if (isRpm) quotaType = "RPM";
+
+        return res.json({
+          success: false,
+          status: "RATE_LIMITED",
+          quotaType,
+          latencyMs,
+          message: "API 사용량 한도(429 Quota Exceeded)에 도달하였습니다.",
+          detail: isRpd
+            ? "일일 한도(RPD: 1,500회) 소진 상태. 매일 한국시간 오후 4시(PST 자정) 초기화"
+            : isRpm
+            ? "분당 한도(RPM: 15회) 초과 상태. 약 1분(60초) 후 자동 해제"
+            : "429 한도 에러 발생. 1분 후 재시도하거나 오후 4시 리셋까지 대기 필요",
+          keyCount: keys.length,
+          rawError: errMsg,
+          timestamp: new Date().toISOString(),
+        });
+      }
+
+      return res.json({
+        success: false,
+        status: "ERROR",
+        latencyMs,
+        message: "Gemini API 통신 오류가 발생했습니다.",
+        error: errMsg,
+        keyCount: keys.length,
+        timestamp: new Date().toISOString(),
+      });
+    }
   });
 
   // REST API: Get Specific History Item Full Details
