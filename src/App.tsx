@@ -452,7 +452,7 @@ export default function App() {
                 className="flex-1 md:flex-none bg-[#10B981] hover:bg-[#0D9668] text-white font-bold px-3.5 py-2 text-xs uppercase transition-all flex items-center justify-center gap-1.5 shadow active:scale-95"
               >
                 <Zap className="w-3.5 h-3.5" />
-                <span>히스토리 열기 (비용 $0)</span>
+                <span>히스토리 열기</span>
               </button>
               <button
                 onClick={() => runAiVisionAnalysis()}

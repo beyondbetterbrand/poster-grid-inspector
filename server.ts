@@ -116,14 +116,19 @@ CRITICAL INSTRUCTIONS:
 Respond ONLY with valid JSON conforming to the schema.`;
 
       const executeGenerateContent = async () => {
-        const modelsToTry = ["gemini-3.6-flash", "gemini-2.5-flash", "gemini-flash-latest"];
+        const modelsToTry = [
+          "gemini-2.5-flash",
+          "gemini-flash-latest",
+          "gemini-2.0-flash",
+          "gemini-1.5-flash"
+        ];
         let lastErr: any = null;
 
         for (const modelName of modelsToTry) {
           for (let attempt = 0; attempt < 2; attempt++) {
             try {
               if (attempt > 0) {
-                await new Promise((resolve) => setTimeout(resolve, 1200));
+                await new Promise((resolve) => setTimeout(resolve, 1000));
               }
               const resp = await ai.models.generateContent({
                 model: modelName,
@@ -229,9 +234,10 @@ Respond ONLY with valid JSON conforming to the schema.`;
             } catch (err: any) {
               lastErr = err;
               const msg = err?.message || "";
-              // If 429 / Quota error, stop retrying immediately to prevent wasting requests
+              // If 429 / Quota error on this model, break inner loop to immediately try the next model
               if (msg.includes("429") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("quota")) {
-                throw err;
+                console.warn(`[Gemini Fallback] Model ${modelName} hit quota limit (429). Falling back to next model...`);
+                break;
               }
             }
           }

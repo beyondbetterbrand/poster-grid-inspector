@@ -848,11 +848,11 @@ const QuotaErrorView: React.FC<{
           <p className="text-[11px] text-[#A0A7BA] leading-relaxed">
             {secondsLeft > 0 ? (
               <span>
-                Gemini API의 분당 요청 한도(RPM)에 도달하였습니다. 카운트다운 완료 후 아래 <strong className="text-white">[AI 비전 재분석]</strong> 버튼을 누르시면 다시 정상적으로 스캔됩니다.
+                Gemini API의 분당 요청 한도(RPM)에 도달하였습니다. 카운트다운 완료 후 아래 <strong className="text-white">[AI 비전 재분석]</strong> 버튼을 눌러 재시도해보세요.
               </span>
             ) : (
               <span className="text-[#10B981] font-bold">
-                1분이 경과하여 한도가 초기화되었습니다! 아래 [AI 비전 재시도] 버튼을 눌러 포스터 스캔을 다시 시작해보세요.
+                60초 대기 시간이 종료되었습니다! 재시도해보세요. (단, 하루 전체 사용량 소진 시에는 매일 오후 4시 리셋 전까지 재요청이 제한됩니다)
               </span>
             )}
           </p>
@@ -887,7 +887,7 @@ const QuotaErrorView: React.FC<{
           <div className="flex items-center justify-between">
             <span className="font-bold text-[#10B981] flex items-center gap-1">
               <Zap className="w-4 h-4" />
-              <span>대안: API 토큰 소모 $0 이전 히스토리</span>
+              <span>대안: 이전 히스토리 바로 불러오기</span>
             </span>
           </div>
           <p className="text-[11px] text-[#A0A7BA] leading-relaxed">
