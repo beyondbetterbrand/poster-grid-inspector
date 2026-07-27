@@ -229,7 +229,8 @@ Respond ONLY with valid JSON conforming to the schema.`;
             } catch (err: any) {
               lastErr = err;
               const msg = err?.message || "";
-              if (!msg.includes("429") && !msg.includes("RESOURCE_EXHAUSTED")) {
+              // If 429 / Quota error, stop retrying immediately to prevent wasting requests
+              if (msg.includes("429") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("quota")) {
                 throw err;
               }
             }

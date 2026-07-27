@@ -13,7 +13,7 @@ import {
   RefreshCw,
   AlertCircle
 } from 'lucide-react';
-import { PosterAnalysisResult } from '../types';
+import { AnalysisResult } from '../types';
 import {
   getLocalHistory,
   deleteLocalHistoryRecord,
@@ -29,13 +29,13 @@ export interface HistoryItem {
   confidence: number;
   createdAt: string;
   imageBase64: string;
-  analysisData?: PosterAnalysisResult;
+  analysisData?: AnalysisResult;
 }
 
 interface HistoryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectHistoryItem: (imageBase64: string, analysisData: PosterAnalysisResult) => void;
+  onSelectHistoryItem: (imageBase64: string, analysisData: AnalysisResult) => void;
 }
 
 export const HistoryModal: React.FC<HistoryModalProps> = ({

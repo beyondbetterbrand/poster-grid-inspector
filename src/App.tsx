@@ -63,21 +63,15 @@ export default function App() {
   const [isAiAnalyzed, setIsAiAnalyzed] = useState<boolean>(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
 
-  const handleSelectHistoryItem = (imageBase64: string, analysisData: PosterAnalysisResult) => {
+  const handleSelectHistoryItem = (imageBase64: string, analysisData: AnalysisResult) => {
     setImageSrc(imageBase64);
-    setAnalysisResult(analysisData);
-    setGridParams(analysisData.gridParams);
-    setDetectedElements(analysisData.detectedElements || []);
-    setKeylines(analysisData.keylines || []);
-
-    const candidates = generateCandidateGrids(
-      analysisData.gridParams,
-      analysisData.detectedElements || [],
-      analysisData.systemType,
-      analysisData.systemNameKo
-    );
-    setCandidateGrids(candidates);
-    setSelectedCandidateId(candidates[0]?.id || 'custom_auto');
+    setAnalysis(analysisData);
+    setAnalysisError(null);
+    if (analysisData && analysisData.gridParams) {
+      setGridParams(analysisData.gridParams);
+    }
+    setDetectedElements(analysisData?.detectedElements || []);
+    setKeylines(analysisData?.keylines || []);
     setIsAiAnalyzed(true);
   };
 
