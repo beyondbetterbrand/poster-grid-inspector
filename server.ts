@@ -156,6 +156,10 @@ Respond ONLY with valid JSON conforming to the schema.`;
                 ],
                 config: {
                   temperature: 0,
+                  maxOutputTokens: 1000,
+                  thinkingConfig: {
+                    thinkingBudget: 0,
+                  },
                   responseMimeType: "application/json",
                   responseSchema: {
                     type: Type.OBJECT,

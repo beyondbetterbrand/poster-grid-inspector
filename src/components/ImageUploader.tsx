@@ -28,7 +28,39 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     reader.onload = (e) => {
       const dataUrl = e.target?.result as string;
       if (dataUrl) {
-        onImageSelected(dataUrl, file);
+        // Optimize/compress image using canvas before sending
+        const img = new Image();
+        img.onload = () => {
+          const maxDimension = 1024; // 1024px is plenty for grid analysis
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            } else {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+            onImageSelected(optimizedDataUrl, file);
+          } else {
+            onImageSelected(dataUrl, file);
+          }
+        };
+        img.onerror = () => {
+          onImageSelected(dataUrl, file);
+        };
+        img.src = dataUrl;
       }
     };
     reader.readAsDataURL(file);
