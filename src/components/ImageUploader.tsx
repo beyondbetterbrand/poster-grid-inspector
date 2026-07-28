@@ -168,7 +168,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                     </span>
                   ) : (
                     <span>
-                      무료 Gemini API로 분석 중입니다. 버스트 초과 방지를 위해 <strong className="text-white">25초 간격 쿨다운</strong>이 자동 적용됩니다.
+                      무료 Gemini API로 분석 중입니다. 버스트 초과 방지를 위해 <strong className="text-white">59초 간격 쿨다운</strong>이 자동 적용됩니다.
                     </span>
                   )}
                 </p>

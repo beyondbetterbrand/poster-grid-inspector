@@ -287,7 +287,7 @@ export default function App() {
       }
     } finally {
       setIsAnalyzing(false);
-      setCooldownSeconds(25);
+      setCooldownSeconds(59);
     }
   };
 
