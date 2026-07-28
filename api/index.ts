@@ -19,7 +19,6 @@ const getAi = () => {
     },
   });
 };
-
 // API Route for Poster Grid Analysis
 app.post("/api/analyze-grid", async (req, res) => {
   try {
@@ -78,7 +77,7 @@ Analyze the uploaded poster image carefully and perform deep visual OCR element 
 Respond ONLY with valid JSON conforming to the schema.`;
 
     const executeGenerateContent = async () => {
-      const modelsToTry = ["gemini-3.6-flash", "gemini-flash-latest"];
+      const modelsToTry = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite"];
       let lastErr: any = null;
 
       for (const modelName of modelsToTry) {
