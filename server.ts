@@ -104,9 +104,7 @@ Output concise JSON in Korean:
         const apiKeys = getApiKeys();
         const modelsToTry = [
           "gemini-3.5-flash-lite",
-          "gemini-flash-lite-latest",
           "gemini-3.1-flash-lite",
-          "gemini-3.1-flash-lite-preview",
         ];
         let lastErr: any = null;
 
