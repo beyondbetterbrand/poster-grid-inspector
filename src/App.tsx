@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, Zap, RefreshCw, Clock } from 'lucide-react';
+import { AlertTriangle, Zap, RefreshCw, Clock, ShoppingBag, Mail, ExternalLink } from 'lucide-react';
 import { Header } from './components/Header';
 import { ImageUploader } from './components/ImageUploader';
 import { GridCanvasOverlay } from './components/GridCanvasOverlay';
@@ -583,13 +583,52 @@ export default function App() {
       />
 
       {/* Footer */}
-      <footer className="bg-[#0F1015] border-t border-[#232733] text-[#5C6479] text-[10px] py-4 px-6 font-mono">
-        <div className="max-w-[1400px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 bg-[#FF3B30]" />
-            <span className="text-white font-bold">SWISS_GRID_LAB // INDIE_STUDIO_EDITION</span>
+      <footer className="bg-[#0F1015] border-t border-[#232733] text-[#8C93A6] text-xs py-5 px-6 font-mono">
+        <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          
+          {/* Left Brand info */}
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 bg-[#FF3B30] rounded-full animate-pulse" />
+              <span className="text-white font-bold tracking-wider">SWISS_GRID_LAB</span>
+            </div>
+            <span className="hidden sm:inline text-[#3B4254]">|</span>
+            <span className="text-[11px] text-[#6C748B]">© beyondbetterbrand.com. All rights reserved.</span>
           </div>
-          <span className="text-[#8C93A6]">SYSTEM_STATUS: ONLINE / VECTOR_EXPORT_ENGINE_READY</span>
+
+          {/* Right Links: Font Store Promotion & Contact Email */}
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {/* Font Store Link */}
+            <a
+              href="https://beyondbetterbrand.com/store"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#161B26] hover:bg-[#FF3B30] hover:text-white text-[#D1D5DB] border border-[#2B3245] hover:border-[#FF3B30] transition-all text-[11px] font-medium group"
+              title="Visit Font Store"
+            >
+              <ShoppingBag className="w-3.5 h-3.5 text-[#FF3B30] group-hover:text-white transition-colors" />
+              <span>FONT STORE</span>
+              <span className="text-[#8C93A6] group-hover:text-white/80 text-[10px] hidden sm:inline">(beyondbetterbrand.com/store)</span>
+              <ExternalLink className="w-3 h-3 opacity-60" />
+            </a>
+
+            {/* Email Contact Link */}
+            <a
+              href="mailto:beyondbetterbrand@gmail.com"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-[#161B26] hover:bg-[#2B3245] text-[#D1D5DB] border border-[#2B3245] transition-all text-[11px] font-medium"
+              title="Send Inquiry Email"
+            >
+              <Mail className="w-3.5 h-3.5 text-[#007AFF]" />
+              <span>Contact: beyondbetterbrand@gmail.com</span>
+            </a>
+
+            {/* Status indicator */}
+            <div className="hidden lg:flex items-center gap-1.5 text-[10px] text-[#5C6479] pl-2 border-l border-[#232733]">
+              <span className="w-1.5 h-1.5 bg-[#34C759] rounded-full" />
+              <span>ONLINE</span>
+            </div>
+          </div>
+
         </div>
       </footer>
     </div>
