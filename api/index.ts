@@ -1,12 +1,4 @@
-import express from "express";
-import { GoogleGenAI, Type } from "@google/genai";
-import crypto from "crypto";
-
-const app = express();
-app.use(express.json({ limit: "25mb" }));
-
-// In-memory cache for poster grid analysis results
-const analysisCache = new Map<string, any>();
+import express from "express Map<string, any>();
 
 // Initialize Gemini AI Client
 const getAi = () => {
@@ -19,6 +11,15 @@ const getAi = () => {
     },
   });
 };
+";
+import { GoogleGenAI, Type } from "@google/genai";
+import crypto from "crypto";
+
+const app = express();
+app.use(express.json({ limit: "25mb" }));
+
+// In-memory cache for poster grid analysis results
+const analysisCache = new
 // API Route for Poster Grid Analysis
 app.post("/api/analyze-grid", async (req, res) => {
   try {
@@ -77,7 +78,7 @@ Analyze the uploaded poster image carefully and perform deep visual OCR element 
 Respond ONLY with valid JSON conforming to the schema.`;
 
     const executeGenerateContent = async () => {
-      const modelsToTry = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite"];
+      const modelsToTry = ["gemini-3.6-flash", "gemini-flash-latest"];
       let lastErr: any = null;
 
       for (const modelName of modelsToTry) {
