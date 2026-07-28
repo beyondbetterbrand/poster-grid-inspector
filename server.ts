@@ -92,18 +92,38 @@ async function startServer() {
         effectiveMimeType = mimeMatch[1];
       }
 
-      const prompt = `Analyze this poster image's grid & visual layout.
-Output concise JSON in Korean:
-- systemType, systemNameKo, confidence (0-100), title, summary (1-2 concise Korean sentences).
-- gridParams: columns, rows, marginTop, marginBottom, marginLeft, marginRight (0-100%).
-- detectedElements (max 6 key text/image blocks): id, label, type, x, y, width, height (0-100%), short alignmentNote (3-5 words).
-- keylines (max 4 key alignments): id, type, position, label.
-- swissPrinciples (max 3 concise bullet phrases).`;
+      const prompt = `You are an expert graphic design AI and computer vision inspector specialized in poster design, Swiss typography, and grid layout analysis.
+
+Analyze the uploaded poster image carefully and perform deep visual OCR element detection, margin boundary snapping, and multi-hypothesis grid mapping:
+
+1. Visual OCR & Precise Bounding Boxes:
+   - Identify ALL major distinct text blocks and visual elements in the poster image.
+   - For labels, transcribe the ACTUAL text written in the image (e.g., 타이포잔치, 2021, 영문/한글/한자 타이틀, 크레딧/후원 정보 등).
+   - Calculate precise bounding box percentage coordinates relative to the full poster canvas (0-100%):
+     - x: left edge percentage (0 to 100)
+     - y: top edge percentage (0 to 100)
+     - width: element width percentage
+     - height: element height percentage
+   - Provide 6 to 12 distinct elements (detectedElements).
+
+2. Margin & Grid Structure Mapping:
+   - Determine underlying system type from ['swiss_modular', '12_column', '6_column', '3_column', 'asymmetric', 'baseline_grid', 'golden_ratio', 'rule_of_thirds', 'freeform_organic']
+   - If elements do not follow rigid mathematical grid lines (e.g. hand-drawn, expressive, B-side poster, deconstructed layout), classify as 'freeform_organic'.
+   - Determine outer margins matching the outermost text/visual bounding boxes.
+   - Determine exact column and row counts (e.g. 2, 3, 4, 6, 12 columns, and 3, 4, 5, 8 rows).
+   - Estimate columnGutter and rowGutter (1.0 to 5.0%).
+
+3. Keylines & Swiss Principles:
+   - Provide keylines (alignment axes/margins) and key principles (swissPrinciples, typeHierarchyRating, whitespaceRatio, colorPalette).
+   - CRITICAL REQUIREMENT: Write ALL text description fields (systemNameKo, title, summary, alignmentNote, swissPrinciples, typeHierarchyRating) in clear, fluent, professional Korean (한글).
+   - "summary" should be a detailed, insightful 2-3 sentence Swiss grid analysis report in Korean explaining how text/images align to margins, baselines, and grid columns.
+
+Respond ONLY with valid JSON conforming to the schema.`;
 
       const executeGenerateContent = async () => {
         const apiKeys = getApiKeys();
         const modelsToTry = [
-          "gemini-3.5-flash-lite",
+          "gemini-3.6-flash",
           "gemini-3.1-flash-lite",
         ];
         let lastErr: any = null;
@@ -139,10 +159,6 @@ Output concise JSON in Korean:
                   ],
                   config: {
                     temperature: 0,
-                    maxOutputTokens: 600,
-                    thinkingConfig: {
-                      thinkingBudget: 0,
-                    },
                     responseMimeType: "application/json",
                     responseSchema: {
                       type: Type.OBJECT,
