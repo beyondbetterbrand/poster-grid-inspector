@@ -1,4 +1,12 @@
-import express from "express Map<string, any>();
+import express from "express";
+import { GoogleGenAI, Type } from "@google/genai";
+import crypto from "crypto";
+
+const app = express();
+app.use(express.json({ limit: "25mb" }));
+
+// In-memory cache for poster grid analysis results
+const analysisCache = new Map<string, any>();
 
 // Initialize Gemini AI Client
 const getAi = () => {
@@ -11,15 +19,7 @@ const getAi = () => {
     },
   });
 };
-";
-import { GoogleGenAI, Type } from "@google/genai";
-import crypto from "crypto";
 
-const app = express();
-app.use(express.json({ limit: "25mb" }));
-
-// In-memory cache for poster grid analysis results
-const analysisCache = new
 // API Route for Poster Grid Analysis
 app.post("/api/analyze-grid", async (req, res) => {
   try {
