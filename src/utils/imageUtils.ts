@@ -14,14 +14,25 @@ export async function prepareImageForVisionApi(
     img.onload = () => {
       try {
         const canvas = document.createElement('canvas');
-        // Optimize width to 800px for speed and low token consumption while preserving OCR readability
-        const targetWidth = 800;
-        const origW = img.naturalWidth || img.width || 800;
-        const origH = img.naturalHeight || img.height || 1131;
-        const aspect = origH / origW;
+        // Max dimension 600px for single-tile Gemini Vision token efficiency (~258 tokens) and ultra-light payload (~40KB)
+        const maxDim = 600;
+        const origW = img.naturalWidth || img.width || 600;
+        const origH = img.naturalHeight || img.height || 800;
 
-        canvas.width = targetWidth;
-        canvas.height = Math.round(targetWidth * aspect);
+        let w = origW;
+        let h = origH;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+
+        canvas.width = w;
+        canvas.height = h;
 
         const ctx = canvas.getContext('2d');
         if (!ctx) {
@@ -34,8 +45,8 @@ export async function prepareImageForVisionApi(
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-        // Compress as JPEG 0.85 for ultra-fast transfer (~100KB)
-        const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        // Compress as JPEG 0.75 for ultra-fast transfer (~35-50KB)
+        const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.75);
         resolve({ base64Png: jpegDataUrl, mimeType: 'image/jpeg' });
       } catch (err) {
         console.warn('Canvas rasterization failed:', err);

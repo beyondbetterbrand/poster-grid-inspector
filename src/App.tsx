@@ -206,8 +206,7 @@ export default function App() {
 
         if (isQuotaOrLimit) {
           setAnalysisError(
-            json.error ||
-              'Gemini API 요청 한도(Quota Exceeded)에 도달하였습니다. 그리드를 표시하지 않으며, 잠시 후 다시 시도하시거나 [분석 히스토리]에서 이전 기록을 불러와주세요.'
+            '⚠️ Gemini API 무료 사용 한도(429 Quota Exceeded/RPD 소진)에 도달하였습니다.\n\n[해결 방법]\n1. aistudio.google.com/app/apikey 에서 무료 개인 API 키를 발급받아 Settings -> Environment Variables에 GEMINI_API_KEY로 등록하시면 제한 없이 계속 사용하실 수 있습니다.\n2. 또는 약 1분 후 [AI 재분석]을 눌러 다시 시도하거나 [분석 히스토리]에서 이전 기록을 불러와주세요.'
           );
           setAnalysis(null);
           setDetectedElements([]);
@@ -242,7 +241,7 @@ export default function App() {
 
       if (isQuotaOrLimit) {
         setAnalysisError(
-          'Gemini API 요청 한도(Quota Exceeded)에 도달하였습니다. 그리드를 표시하지 않으며, 잠시 후 다시 시도하시거나 [분석 히스토리]에서 이전 기록을 불러와주세요.'
+          '⚠️ Gemini API 무료 사용 한도(429 Quota Exceeded/RPD 소진)에 도달하였습니다.\n\n[해결 방법]\n1. aistudio.google.com/app/apikey 에서 무료 개인 API 키를 발급받아 Settings -> Environment Variables에 GEMINI_API_KEY로 등록하시면 제한 없이 계속 사용하실 수 있습니다.\n2. 또는 약 1분 후 [AI 재분석]을 눌러 다시 시도하거나 [분석 히스토리]에서 이전 기록을 불러와주세요.'
         );
         setAnalysis(null);
         setDetectedElements([]);
