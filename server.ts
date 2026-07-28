@@ -92,36 +92,18 @@ async function startServer() {
         effectiveMimeType = mimeMatch[1];
       }
 
-      const prompt = `You are an expert graphic design AI and computer vision inspector specialized in poster design, Swiss typography, and grid layout analysis.
-
-Analyze this poster image from a Swiss Typography & Graphic Design perspective:
-
-CRITICAL INSTRUCTIONS:
-1. ALL text responses (systemNameKo, title, summary, alignmentNote, swissPrinciples, typeHierarchyRating, candidateGrids.rationale) MUST be written in friendly, natural, and professional Korean (한국어).
-
-2. Summary (한글 분석 요약):
-   - Write a rich, easy-to-understand 3-4 sentence report in Korean explaining the poster's visual layout, typography alignment, margins, and grid system.
-   - Describe clearly how the title, subtitle, images, and body text are structured along vertical columns or horizontal baselines, and how it aligns with Swiss design principles (balance, legibility, rhythm).
-
-3. Visual OCR & Precise Bounding Boxes:
-   - Identify 4 to 12 major distinct text blocks and visual elements in the poster image.
-   - Provide precise percentage bounding boxes relative to the poster canvas (0-100%): x, y, width, height.
-   - For alignmentNote, write a short Korean description (e.g., "왼쪽 1컬럼 축에 정렬된 메인 타이틀").
-
-4. Grid Parameters & Candidates:
-   - Determine underlying systemType ('swiss_modular', '12_column', '6_column', '3_column', 'asymmetric', 'baseline_grid', 'golden_ratio', 'rule_of_thirds', 'freeform_organic').
-   - Provide systemNameKo in clear Korean (e.g., "스위스 모듈러 12컬럼 시스템").
-   - Suggest 2-3 candidate grid hypotheses with fitScore (0-100%) and Korean rationale.
-
-5. Type Hierarchy Rating (타이포 위계 평가):
-   - Provide a qualitative Korean grade evaluation for typeHierarchyRating (e.g. "S등급 (완벽한 정보 위계)", "A등급 (우수한 정보 위계)", "B등급 (양호한 정보 위계)").
-   - NEVER output numerical scores or fraction formats like "7/10", "8/10", "7 / 10". MUST be a letter grade + Korean descriptive tag.
-
-Respond ONLY with valid JSON conforming to the schema.`;
+      const prompt = `Analyze this poster image's grid & visual layout.
+Output concise JSON in Korean:
+- systemType, systemNameKo, confidence (0-100), title, summary (1-2 concise Korean sentences).
+- gridParams: columns, rows, marginTop, marginBottom, marginLeft, marginRight (0-100%).
+- detectedElements (max 6 key text/image blocks): id, label, type, x, y, width, height (0-100%), short alignmentNote (3-5 words).
+- keylines (max 4 key alignments): id, type, position, label.
+- swissPrinciples (max 3 concise bullet phrases).`;
 
       const executeGenerateContent = async () => {
         const apiKeys = getApiKeys();
         const modelsToTry = [
+          "gemini-2.5-flash-lite",
           "gemini-2.5-flash",
         ];
         let lastErr: any = null;
@@ -156,7 +138,7 @@ Respond ONLY with valid JSON conforming to the schema.`;
                 ],
                 config: {
                   temperature: 0,
-                  maxOutputTokens: 1000,
+                  maxOutputTokens: 450,
                   thinkingConfig: {
                     thinkingBudget: 0,
                   },
