@@ -14,10 +14,10 @@ export async function prepareImageForVisionApi(
     img.onload = () => {
       try {
         const canvas = document.createElement('canvas');
-        // Max dimension 600px for single-tile Gemini Vision token efficiency (~258 tokens) and ultra-light payload (~40KB)
-        const maxDim = 600;
-        const origW = img.naturalWidth || img.width || 600;
-        const origH = img.naturalHeight || img.height || 800;
+        // Max dimension 400px for single-tile Gemini Vision token efficiency (~120-250 tokens) and ultra-light payload (~20KB)
+        const maxDim = 400;
+        const origW = img.naturalWidth || img.width || 400;
+        const origH = img.naturalHeight || img.height || 600;
 
         let w = origW;
         let h = origH;
@@ -45,8 +45,8 @@ export async function prepareImageForVisionApi(
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-        // Compress as JPEG 0.75 for ultra-fast transfer (~35-50KB)
-        const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.75);
+        // Compress as JPEG 0.55 for ultra-fast transfer (~15-25KB)
+        const jpegDataUrl = canvas.toDataURL('image/jpeg', 0.55);
         resolve({ base64Png: jpegDataUrl, mimeType: 'image/jpeg' });
       } catch (err) {
         console.warn('Canvas rasterization failed:', err);

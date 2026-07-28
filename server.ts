@@ -103,7 +103,7 @@ Output concise JSON in Korean:
       const executeGenerateContent = async () => {
         const apiKeys = getApiKeys();
         const modelsToTry = [
-          "gemini-2.5-flash-lite",
+          "gemini-2.0-flash-lite",
           "gemini-2.5-flash",
         ];
         let lastErr: any = null;
@@ -138,7 +138,7 @@ Output concise JSON in Korean:
                 ],
                 config: {
                   temperature: 0,
-                  maxOutputTokens: 450,
+                  maxOutputTokens: 250,
                   thinkingConfig: {
                     thinkingBudget: 0,
                   },
