@@ -36,6 +36,7 @@ interface RightInspectorPanelProps {
   onResetGridParams?: () => void;
   onOpenManualModal?: () => void;
   onOpenHistoryModal?: () => void;
+  cooldownSeconds?: number;
 }
 
 const COLOR_PRESETS = [
@@ -140,8 +141,10 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
   onResetGridParams,
   onOpenManualModal,
   onOpenHistoryModal,
+  cooldownSeconds = 0,
 }) => {
   const [activeTab, setActiveTab] = useState<'candidates' | 'elements' | 'options' | 'report'>('candidates');
+  const isCooldown = cooldownSeconds > 0;
 
   const updateParam = <K extends keyof GridParams>(key: K, value: GridParams[K]) => {
     onChangeParams({
@@ -223,10 +226,16 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
               </div>
               <button
                 onClick={onReanalyzeAi}
-                className="shrink-0 bg-[#FF3B30] hover:bg-[#E03126] text-white font-mono font-bold px-3 py-1.5 text-xs uppercase transition-all active:scale-95 flex items-center gap-1 shadow"
+                disabled={isCooldown}
+                className={`shrink-0 font-mono font-bold px-3 py-1.5 text-xs uppercase transition-all flex items-center gap-1 shadow ${
+                  isCooldown
+                    ? 'bg-[#181B24] text-[#8C93A6] border border-[#2A2E3B] cursor-not-allowed'
+                    : 'bg-[#FF3B30] hover:bg-[#E03126] text-white active:scale-95'
+                }`}
+                title={isCooldown ? `API 과부하 방지: ${cooldownSeconds}초 대기 후 이용가능` : 'AI 스캔'}
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>AI 스캔</span>
+                <span>{isCooldown ? `AI 스캔 (${cooldownSeconds}s)` : 'AI 스캔'}</span>
               </button>
             </div>
           ) : (
@@ -238,9 +247,13 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
                 </span>
                 <button
                   onClick={onReanalyzeAi}
-                  className="text-[#8C93A6] hover:text-white underline text-xs shrink-0"
+                  disabled={isCooldown}
+                  className={`text-xs shrink-0 ${
+                    isCooldown ? 'text-[#5C6479] cursor-not-allowed' : 'text-[#8C93A6] hover:text-white underline'
+                  }`}
+                  title={isCooldown ? `API 과부하 방지: ${cooldownSeconds}초 대기` : '재스캔'}
                 >
-                  재스캔
+                  {isCooldown ? `재스캔 (${cooldownSeconds}s)` : '재스캔'}
                 </button>
               </div>
               <p className="text-xs text-[#C2C8D6] font-sans leading-relaxed">

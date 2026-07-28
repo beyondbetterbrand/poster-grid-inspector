@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlertTriangle, Zap, RefreshCw, Clock } from 'lucide-react';
 import { Header } from './components/Header';
 import { ImageUploader } from './components/ImageUploader';
@@ -62,6 +62,21 @@ export default function App() {
 
   const [isAiAnalyzed, setIsAiAnalyzed] = useState<boolean>(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [cooldownSeconds, setCooldownSeconds] = useState<number>(0);
+
+  useEffect(() => {
+    if (cooldownSeconds <= 0) return;
+    const timer = setInterval(() => {
+      setCooldownSeconds((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldownSeconds]);
 
   const handleSelectHistoryItem = (imageBase64: string, analysisData: AnalysisResult) => {
     setImageSrc(imageBase64);
@@ -95,6 +110,13 @@ export default function App() {
 
   // Re-analyze currently loaded poster with Gemini AI Vision
   const runAiVisionAnalysis = async (targetDataUrl?: string) => {
+    if (cooldownSeconds > 0) {
+      setAnalysisError(
+        `⚠️ Gemini API 버스트 요청 방지 쿨다운 중입니다. ${cooldownSeconds}초 대기 후 다시 시도하실 수 있습니다.`
+      );
+      return;
+    }
+
     const src = targetDataUrl || imageSrc;
     if (!src) return;
 
@@ -265,6 +287,7 @@ export default function App() {
       }
     } finally {
       setIsAnalyzing(false);
+      setCooldownSeconds(25);
     }
   };
 
@@ -426,6 +449,7 @@ export default function App() {
         onUploadClick={handleUploadNewImageTrigger}
         hasImage={!!imageSrc}
         isAnalyzing={isAnalyzing}
+        cooldownSeconds={cooldownSeconds}
       />
 
       {/* Main Body Layout */}
@@ -440,13 +464,13 @@ export default function App() {
               <div className="space-y-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-bold text-[#FF3B30] uppercase tracking-wider text-xs">
-                    ⚠️ Gemini API 요청 한도 초과 안내 (429 Quota Exceeded)
+                    ⚠️ Gemini API 안내
                   </span>
                   <span className="text-[10px] bg-[#FF3B30]/20 text-[#FF3B30] border border-[#FF3B30]/30 px-1.5 py-0.5 rounded font-bold">
-                    리셋 주기 안내
+                    안내 및 해결방법
                   </span>
                 </div>
-                <p className="text-[#C2C8D6] leading-relaxed">
+                <p className="text-[#C2C8D6] leading-relaxed whitespace-pre-line">
                   {analysisError}
                 </p>
                 <div className="text-[11px] text-[#A0A7BA] pt-0.5">
@@ -465,10 +489,15 @@ export default function App() {
               </button>
               <button
                 onClick={() => runAiVisionAnalysis()}
-                className="flex-1 md:flex-none bg-[#FF3B30] hover:bg-[#E02E24] text-white font-bold px-3.5 py-2 text-xs uppercase transition-all flex items-center justify-center gap-1.5 shadow active:scale-95"
+                disabled={cooldownSeconds > 0}
+                className={`flex-1 md:flex-none font-bold px-3.5 py-2 text-xs uppercase transition-all flex items-center justify-center gap-1.5 shadow active:scale-95 ${
+                  cooldownSeconds > 0
+                    ? 'bg-[#232733] text-[#8C93A6] cursor-not-allowed'
+                    : 'bg-[#FF3B30] hover:bg-[#E02E24] text-white'
+                }`}
               >
                 <RefreshCw className="w-3.5 h-3.5" />
-                <span>AI 스캔 재시도</span>
+                <span>{cooldownSeconds > 0 ? `재시도 (${cooldownSeconds}s)` : 'AI 스캔 재시도'}</span>
               </button>
             </div>
           </div>
@@ -479,6 +508,7 @@ export default function App() {
           <ImageUploader
             onImageSelected={handleCustomImageSelected}
             isAnalyzing={isAnalyzing}
+            cooldownSeconds={cooldownSeconds}
           />
         )}
 
@@ -513,6 +543,7 @@ export default function App() {
                 onResetGridParams={handleResetGridParams}
                 onOpenManualModal={() => setIsManualModalOpen(true)}
                 onOpenHistoryModal={() => setIsHistoryModalOpen(true)}
+                cooldownSeconds={cooldownSeconds}
               />
             </div>
           </div>

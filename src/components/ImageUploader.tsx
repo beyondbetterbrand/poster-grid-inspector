@@ -4,15 +4,18 @@ import { Upload, Sparkles, AlertCircle } from 'lucide-react';
 interface ImageUploaderProps {
   onImageSelected: (dataUrl: string, file: File) => void;
   isAnalyzing: boolean;
+  cooldownSeconds?: number;
 }
 
 export const ImageUploader: React.FC<ImageUploaderProps> = ({
   onImageSelected,
   isAnalyzing,
+  cooldownSeconds = 0,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isCooldown = cooldownSeconds > 0;
 
   const processFile = (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -125,9 +128,17 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
               </div>
 
               <div className="mt-2 text-[10px] text-[#A2A9B8] bg-[#161922] border border-[#2B3040] px-3 py-2 text-left flex items-start gap-2 max-w-sm font-sans">
-                <span className="text-[#FF3B30] font-bold font-mono shrink-0">[무료 API 안내]</span>
+                <span className="text-[#FF3B30] font-bold font-mono shrink-0">[API 쿨다운 안내]</span>
                 <p className="leading-normal">
-                  무료 Gemini API로 분석 중입니다. 정밀 분석에는 <strong className="text-white">약 5초~10초</strong>가 소요되며, 사용자가 몰릴 경우 약 15초 후 [다시 분석]을 실행해 주세요.
+                  {isCooldown ? (
+                    <span className="text-[#FF3B30] font-bold">
+                      연속 분석 한도 과부하 방지를 위해 {cooldownSeconds}초 대기 중입니다.
+                    </span>
+                  ) : (
+                    <span>
+                      무료 Gemini API로 분석 중입니다. 버스트 초과 방지를 위해 <strong className="text-white">25초 간격 쿨다운</strong>이 자동 적용됩니다.
+                    </span>
+                  )}
                 </p>
               </div>
             </>

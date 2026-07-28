@@ -123,7 +123,6 @@ Respond ONLY with valid JSON conforming to the schema.`;
         const apiKeys = getApiKeys();
         const modelsToTry = [
           "gemini-2.5-flash",
-          "gemini-1.5-flash"
         ];
         let lastErr: any = null;
 

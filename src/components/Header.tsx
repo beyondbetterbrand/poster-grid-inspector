@@ -9,6 +9,7 @@ interface HeaderProps {
   onUploadClick?: () => void;
   hasImage: boolean;
   isAnalyzing: boolean;
+  cooldownSeconds?: number;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -19,7 +20,9 @@ export const Header: React.FC<HeaderProps> = ({
   onUploadClick,
   hasImage,
   isAnalyzing,
+  cooldownSeconds = 0,
 }) => {
+  const isCooldown = cooldownSeconds > 0;
   return (
     <header className="bg-[#0F1015] border-b border-[#232733] text-white px-4 sm:px-6 py-3 sticky top-0 z-30 shadow-2xl">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
@@ -64,31 +67,41 @@ export const Header: React.FC<HeaderProps> = ({
           {hasImage && onUploadClick && (
             <button
               onClick={onUploadClick}
-              disabled={isAnalyzing}
-              className="flex items-center gap-1.5 text-xs sm:text-sm font-mono font-bold px-3.5 py-2 bg-[#1A1D26] hover:bg-[#252A38] text-[#C2C8D6] border border-[#2D3345] transition-all active:scale-95"
+              disabled={isAnalyzing || isCooldown}
+              className={`flex items-center gap-1.5 text-xs sm:text-sm font-mono font-bold px-3.5 py-2 border transition-all active:scale-95 ${
+                isCooldown
+                  ? 'bg-[#181B24] text-[#8C93A6] border-[#2A2E3B] cursor-not-allowed'
+                  : 'bg-[#1A1D26] hover:bg-[#252A38] text-[#C2C8D6] border-[#2D3345]'
+              }`}
+              title={isCooldown ? `API 버스트 연속 요청 방지를 위해 ${cooldownSeconds}초 후 이미지 변경 가능합니다` : '새로운 이미지 변경'}
             >
               <Upload className="w-4 h-4 text-[#FF3B30]" />
-              <span>이미지 변경</span>
+              <span>{isCooldown ? `이미지 변경 (${cooldownSeconds}s)` : '이미지 변경'}</span>
             </button>
           )}
 
           {hasImage && onReanalyzeAi && (
             <button
               onClick={onReanalyzeAi}
-              disabled={isAnalyzing}
+              disabled={isAnalyzing || isCooldown}
               className={`flex items-center gap-1.5 text-xs sm:text-sm font-mono font-bold px-3.5 py-2 transition-all border ${
-                isAnalyzing
+                isAnalyzing || isCooldown
                   ? 'bg-[#181B24] text-[#5C6479] border-[#2A2E3B] cursor-not-allowed'
                   : 'bg-[#FF3B30]/15 hover:bg-[#FF3B30]/25 text-[#FF6B60] border-[#FF3B30]/40 active:scale-95'
               }`}
-              title="포스터를 Gemini Vision AI로 다시 분석합니다"
+              title={isCooldown ? `API 과부하 방지: ${cooldownSeconds}초 대기 후 재스캔 가능합니다` : '포스터를 Gemini Vision AI로 다시 분석합니다'}
             >
               {isAnalyzing ? (
                 <RefreshCw className="w-4 h-4 animate-spin text-[#FF3B30]" />
               ) : (
                 <Sparkles className="w-4 h-4 text-[#FF3B30]" />
               )}
-              <span className="hidden sm:inline">AI 비전 스캔</span>
+              <span className="hidden sm:inline">
+                {isCooldown ? `AI 비전 스캔 (${cooldownSeconds}s)` : 'AI 비전 스캔'}
+              </span>
+              <span className="sm:hidden">
+                {isCooldown ? `스캔 (${cooldownSeconds}s)` : 'AI 스캔'}
+              </span>
             </button>
           )}
 
