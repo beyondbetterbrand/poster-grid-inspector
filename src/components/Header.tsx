@@ -80,31 +80,6 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
-          {hasImage && onReanalyzeAi && (
-            <button
-              onClick={onReanalyzeAi}
-              disabled={isAnalyzing || isCooldown}
-              className={`flex items-center gap-1.5 text-xs sm:text-sm font-mono font-bold px-3.5 py-2 transition-all border ${
-                isAnalyzing || isCooldown
-                  ? 'bg-[#181B24] text-[#5C6479] border-[#2A2E3B] cursor-not-allowed'
-                  : 'bg-[#FF3B30]/15 hover:bg-[#FF3B30]/25 text-[#FF6B60] border-[#FF3B30]/40 active:scale-95'
-              }`}
-              title={isCooldown ? `API 과부하 방지: ${cooldownSeconds}초 대기 후 재스캔 가능합니다` : '포스터를 Gemini Vision AI로 다시 분석합니다'}
-            >
-              {isAnalyzing ? (
-                <RefreshCw className="w-4 h-4 animate-spin text-[#FF3B30]" />
-              ) : (
-                <Sparkles className="w-4 h-4 text-[#FF3B30]" />
-              )}
-              <span className="hidden sm:inline">
-                {isCooldown ? `AI 비전 스캔 (${cooldownSeconds}s)` : 'AI 비전 스캔'}
-              </span>
-              <span className="sm:hidden">
-                {isCooldown ? `스캔 (${cooldownSeconds}s)` : 'AI 스캔'}
-              </span>
-            </button>
-          )}
-
           <button
             onClick={onOpenExportModal}
             disabled={!hasImage || isAnalyzing}

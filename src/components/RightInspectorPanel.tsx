@@ -211,58 +211,33 @@ export const RightInspectorPanel: React.FC<RightInspectorPanelProps> = ({
         </h2>
       </div>
 
-      {/* AI Vision Status Banner */}
-      {onReanalyzeAi && (
-        <div className="mt-2.5 shrink-0">
-          {!isAiAnalyzed || analysisError ? (
-            <div className="bg-[#2A1D15] border border-[#F59E0B]/40 p-3 flex items-center justify-between gap-2 text-xs">
-              <div className="min-w-0 space-y-0.5">
-                <span className="font-mono font-bold text-[#F59E0B] block text-xs uppercase">
-                  [CANVAS_SMART_VISION_ACTIVE]
-                </span>
-                <span className="text-xs text-[#D1D5DB] block truncate">
-                  {analysisError || '실물 포스터 이미지 기반 캔버스 스마트 비전 밀착 적용'}
-                </span>
-              </div>
-              <button
-                onClick={onReanalyzeAi}
-                disabled={isCooldown}
-                className={`shrink-0 font-mono font-bold px-3 py-1.5 text-xs uppercase transition-all flex items-center gap-1 shadow ${
-                  isCooldown
-                    ? 'bg-[#181B24] text-[#8C93A6] border border-[#2A2E3B] cursor-not-allowed'
-                    : 'bg-[#FF3B30] hover:bg-[#E03126] text-white active:scale-95'
-                }`}
-                title={isCooldown ? `API 과부하 방지: ${cooldownSeconds}초 대기 후 이용가능` : 'AI 스캔'}
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>{isCooldown ? `AI 스캔 (${cooldownSeconds}s)` : 'AI 스캔'}</span>
-              </button>
+      {/* Vision Status Banner */}
+      <div className="mt-2.5 shrink-0">
+        {!isAiAnalyzed || analysisError ? (
+          <div className="bg-[#2A1D15] border border-[#F59E0B]/40 p-3 flex items-center justify-between gap-2 text-xs">
+            <div className="min-w-0 space-y-0.5">
+              <span className="font-mono font-bold text-[#F59E0B] block text-xs uppercase">
+                [CANVAS_SMART_VISION_ACTIVE]
+              </span>
+              <span className="text-xs text-[#D1D5DB] block truncate">
+                {analysisError || '실물 포스터 이미지 기반 캔버스 스마트 비전 밀착 적용'}
+              </span>
             </div>
-          ) : (
-            <div className="bg-[#12221A] border border-[#10B981]/40 p-3 space-y-1.5 text-xs font-mono">
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-1.5 text-[#10B981] font-bold text-xs">
-                  <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
-                  <span>AI OCR 인지 완료 ({analysis.detectedElements.length}개 요소 추출)</span>
-                </span>
-                <button
-                  onClick={onReanalyzeAi}
-                  disabled={isCooldown}
-                  className={`text-xs shrink-0 ${
-                    isCooldown ? 'text-[#5C6479] cursor-not-allowed' : 'text-[#8C93A6] hover:text-white underline'
-                  }`}
-                  title={isCooldown ? `API 과부하 방지: ${cooldownSeconds}초 대기` : '재스캔'}
-                >
-                  {isCooldown ? `재스캔 (${cooldownSeconds}s)` : '재스캔'}
-                </button>
-              </div>
-              <p className="text-xs text-[#C2C8D6] font-sans leading-relaxed">
-                포스터 내 핵심 텍스트와 이미지 위치를 인지하여, 외곽 마진(좌우:{gridParams.marginLeft}% / 상하:{gridParams.marginTop}%)과 {gridParams.columns}컬럼 세로축 그리드를 자동으로 산출했습니다.
-              </p>
+          </div>
+        ) : (
+          <div className="bg-[#12221A] border border-[#10B981]/40 p-3 space-y-1.5 text-xs font-mono">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-[#10B981] font-bold text-xs">
+                <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
+                <span>AI OCR 인지 완료 ({analysis.detectedElements.length}개 요소 추출)</span>
+              </span>
             </div>
-          )}
-        </div>
-      )}
+            <p className="text-xs text-[#C2C8D6] font-sans leading-relaxed">
+              포스터 내 핵심 텍스트와 이미지 위치를 인지하여, 외곽 마진(좌우:{gridParams.marginLeft}% / 상하:{gridParams.marginTop}%)과 {gridParams.columns}컬럼 세로축 그리드를 자동으로 산출했습니다.
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Navigation Tabs */}
       <div className="grid grid-cols-4 gap-1.5 my-3.5 bg-[#14161F] p-1.5 border border-[#232733] shrink-0 text-xs font-mono">
