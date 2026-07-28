@@ -103,8 +103,10 @@ Output concise JSON in Korean:
       const executeGenerateContent = async () => {
         const apiKeys = getApiKeys();
         const modelsToTry = [
-          "gemini-2.0-flash-lite",
-          "gemini-2.5-flash",
+          "gemini-3.5-flash-lite",
+          "gemini-flash-lite-latest",
+          "gemini-3.1-flash-lite",
+          "gemini-3.6-flash",
         ];
         let lastErr: any = null;
 
@@ -125,130 +127,135 @@ Output concise JSON in Korean:
                 if (attempt > 0) {
                   await new Promise((resolve) => setTimeout(resolve, 1000));
                 }
+                console.log(`[Gemini API] Requesting model: ${modelName} (attempt ${attempt + 1})`);
                 const resp = await aiInstance.models.generateContent({
                   model: modelName,
-                contents: [
-                  {
-                    inlineData: {
-                      data: cleanBase64,
-                      mimeType: effectiveMimeType,
-                    },
-                  },
-                  { text: prompt },
-                ],
-                config: {
-                  temperature: 0,
-                  maxOutputTokens: 250,
-                  thinkingConfig: {
-                    thinkingBudget: 0,
-                  },
-                  responseMimeType: "application/json",
-                  responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                      systemType: { type: Type.STRING },
-                      systemNameKo: { type: Type.STRING },
-                      confidence: { type: Type.NUMBER },
-                      title: { type: Type.STRING },
-                      summary: { type: Type.STRING },
-                      gridParams: {
-                        type: Type.OBJECT,
-                        properties: {
-                          columns: { type: Type.NUMBER },
-                          rows: { type: Type.NUMBER },
-                          marginTop: { type: Type.NUMBER },
-                          marginBottom: { type: Type.NUMBER },
-                          marginLeft: { type: Type.NUMBER },
-                          marginRight: { type: Type.NUMBER },
-                          columnGutter: { type: Type.NUMBER },
-                          rowGutter: { type: Type.NUMBER },
-                          baselineSpacing: { type: Type.NUMBER },
-                          diagonalAngle: { type: Type.NUMBER },
-                        },
-                        required: [
-                          "columns",
-                          "rows",
-                          "marginTop",
-                          "marginBottom",
-                          "marginLeft",
-                          "marginRight",
-                        ],
-                      },
-                      detectedElements: {
-                        type: Type.ARRAY,
-                        items: {
-                          type: Type.OBJECT,
-                          properties: {
-                            id: { type: Type.STRING },
-                            label: { type: Type.STRING },
-                            type: { type: Type.STRING },
-                            x: { type: Type.NUMBER },
-                            y: { type: Type.NUMBER },
-                            width: { type: Type.NUMBER },
-                            height: { type: Type.NUMBER },
-                            alignmentNote: { type: Type.STRING },
-                          },
-                          required: ["id", "label", "type", "x", "y", "width", "height"],
-                        },
-                      },
-                      keylines: {
-                        type: Type.ARRAY,
-                        items: {
-                          type: Type.OBJECT,
-                          properties: {
-                            id: { type: Type.STRING },
-                            type: { type: Type.STRING },
-                            position: { type: Type.NUMBER },
-                            label: { type: Type.STRING },
-                          },
-                          required: ["id", "type", "position", "label"],
-                        },
-                      },
-                      swissPrinciples: {
-                        type: Type.ARRAY,
-                        items: { type: Type.STRING },
-                      },
-                      typeHierarchyRating: { type: Type.STRING },
-                      whitespaceRatio: { type: Type.STRING },
-                      colorPalette: {
-                        type: Type.ARRAY,
-                        items: { type: Type.STRING },
+                  contents: [
+                    {
+                      inlineData: {
+                        data: cleanBase64,
+                        mimeType: effectiveMimeType,
                       },
                     },
-                    required: [
-                      "systemType",
-                      "systemNameKo",
-                      "confidence",
-                      "title",
-                      "summary",
-                      "gridParams",
-                      "detectedElements",
-                      "keylines",
-                      "swissPrinciples",
-                    ],
+                    { text: prompt },
+                  ],
+                  config: {
+                    temperature: 0,
+                    maxOutputTokens: 600,
+                    thinkingConfig: {
+                      thinkingBudget: 0,
+                    },
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                      type: Type.OBJECT,
+                      properties: {
+                        systemType: { type: Type.STRING },
+                        systemNameKo: { type: Type.STRING },
+                        confidence: { type: Type.NUMBER },
+                        title: { type: Type.STRING },
+                        summary: { type: Type.STRING },
+                        gridParams: {
+                          type: Type.OBJECT,
+                          properties: {
+                            columns: { type: Type.NUMBER },
+                            rows: { type: Type.NUMBER },
+                            marginTop: { type: Type.NUMBER },
+                            marginBottom: { type: Type.NUMBER },
+                            marginLeft: { type: Type.NUMBER },
+                            marginRight: { type: Type.NUMBER },
+                            columnGutter: { type: Type.NUMBER },
+                            rowGutter: { type: Type.NUMBER },
+                            baselineSpacing: { type: Type.NUMBER },
+                            diagonalAngle: { type: Type.NUMBER },
+                          },
+                          required: [
+                            "columns",
+                            "rows",
+                            "marginTop",
+                            "marginBottom",
+                            "marginLeft",
+                            "marginRight",
+                          ],
+                        },
+                        detectedElements: {
+                          type: Type.ARRAY,
+                          items: {
+                            type: Type.OBJECT,
+                            properties: {
+                              id: { type: Type.STRING },
+                              label: { type: Type.STRING },
+                              type: { type: Type.STRING },
+                              x: { type: Type.NUMBER },
+                              y: { type: Type.NUMBER },
+                              width: { type: Type.NUMBER },
+                              height: { type: Type.NUMBER },
+                              alignmentNote: { type: Type.STRING },
+                            },
+                            required: ["id", "label", "type", "x", "y", "width", "height"],
+                          },
+                        },
+                        keylines: {
+                          type: Type.ARRAY,
+                          items: {
+                            type: Type.OBJECT,
+                            properties: {
+                              id: { type: Type.STRING },
+                              type: { type: Type.STRING },
+                              position: { type: Type.NUMBER },
+                              label: { type: Type.STRING },
+                            },
+                            required: ["id", "type", "position", "label"],
+                          },
+                        },
+                        swissPrinciples: {
+                          type: Type.ARRAY,
+                          items: { type: Type.STRING },
+                        },
+                        typeHierarchyRating: { type: Type.STRING },
+                        whitespaceRatio: { type: Type.STRING },
+                        colorPalette: {
+                          type: Type.ARRAY,
+                          items: { type: Type.STRING },
+                        },
+                      },
+                      required: [
+                        "systemType",
+                        "systemNameKo",
+                        "confidence",
+                        "title",
+                        "summary",
+                        "gridParams",
+                        "detectedElements",
+                        "keylines",
+                        "swissPrinciples",
+                      ],
+                    },
                   },
-                },
-              });
-              return resp;
-            } catch (err: any) {
-              lastErr = err;
-              const msg = err?.message || "";
-              // If 429 / Quota error on this model, break inner loop to immediately try the next model
-              if (msg.includes("429") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("quota")) {
-                console.warn(`[Gemini Fallback] Model ${modelName} hit quota limit (429). Falling back to next model/key...`);
-                break;
+                });
+                console.log(`[Gemini API Success] Model ${modelName} succeeded! Usage:`, resp.usageMetadata);
+                return { resp, usedModel: modelName };
+              } catch (err: any) {
+                lastErr = err;
+                const msg = err?.message || String(err);
+                console.warn(`[Gemini API Error] Model ${modelName} attempt ${attempt + 1} failed:`, msg);
+                if (msg.includes("429") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("quota") || msg.includes("404") || msg.includes("NOT_FOUND")) {
+                  console.warn(`[Gemini Fallback] Model ${modelName} failed (${msg.slice(0, 80)}). Trying next model...`);
+                  break;
+                }
               }
             }
           }
         }
-        }
         throw lastErr;
       };
 
-      const response = await executeGenerateContent();
+      const { resp, usedModel } = await executeGenerateContent();
 
-      const rawText = response.text || "{}";
+      const rawText = resp.text || "{}";
       const parsedData = JSON.parse(rawText);
+
+      parsedData._usedModel = usedModel;
+      parsedData._usage = resp.usageMetadata || null;
 
       if (typeof parsedData.confidence === 'number') {
         if (parsedData.confidence <= 1) {
